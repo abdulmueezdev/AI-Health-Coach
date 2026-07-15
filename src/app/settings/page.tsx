@@ -1,0 +1,122 @@
+"use client"
+
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { LogOut, Save } from "lucide-react"
+import { signOut } from "@/server/actions/auth"
+
+export default function SettingsPage() {
+  const [loading, setLoading] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    // Simulate save
+    setTimeout(() => {
+      setLoading(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    }, 1000)
+  }
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  }
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h1 className="font-zodiak text-4xl font-bold mb-2">Settings</h1>
+          <p className="text-text-secondary font-sans text-lg">
+            Manage your profile, goals, and preferences.
+          </p>
+        </div>
+      </div>
+
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 max-w-3xl">
+        <motion.div variants={item}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSave} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="displayName">Display Name</Label>
+                    <Input id="displayName" defaultValue="Alex" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" defaultValue="alex@example.com" disabled />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="height">Height (in)</Label>
+                    <Input id="height" type="number" defaultValue="70" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="weight">Weight (lbs)</Label>
+                    <Input id="weight" type="number" defaultValue="184.2" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="targetWeight">Target Weight (lbs)</Label>
+                    <Input id="targetWeight" type="number" defaultValue="175" />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="text-sm text-status-positive font-medium h-5">
+                    {saved && "Settings saved successfully."}
+                  </div>
+                  <Button type="submit" disabled={loading} className="gap-2">
+                    <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Account</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-text-primary">Sign Out</h4>
+                  <p className="text-sm text-text-secondary">Log out of your current session on this device.</p>
+                </div>
+                <form action={signOut}>
+                  <Button type="submit" variant="outline" className="bg-white border-gray-200 text-text-primary hover:bg-gray-50 gap-2">
+                    <LogOut className="w-4 h-4" /> Sign Out
+                  </Button>
+                </form>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+    </DashboardLayout>
+  )
+}
