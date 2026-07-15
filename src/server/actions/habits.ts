@@ -10,7 +10,7 @@ export type TypedActionResponse<T> = {
 }
 
 export async function createHabit(data: Omit<Habit, 'id' | 'user_id' | 'streak_count' | 'last_completed_at'>): Promise<TypedActionResponse<Habit>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -24,7 +24,7 @@ export async function createHabit(data: Omit<Habit, 'id' | 'user_id' | 'streak_c
 }
 
 export async function getHabits(): Promise<TypedActionResponse<Habit[]>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -35,7 +35,7 @@ export async function getHabits(): Promise<TypedActionResponse<Habit[]>> {
 }
 
 export async function updateHabit(id: string, updates: Partial<Omit<Habit, 'id' | 'user_id'>>): Promise<TypedActionResponse<Habit>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -46,7 +46,7 @@ export async function updateHabit(id: string, updates: Partial<Omit<Habit, 'id' 
 }
 
 export async function deleteHabit(id: string): Promise<TypedActionResponse<void>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -57,7 +57,7 @@ export async function deleteHabit(id: string): Promise<TypedActionResponse<void>
 }
 
 export async function logHabitCompletion(habitId: string): Promise<TypedActionResponse<HabitLog>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 

@@ -6,11 +6,12 @@ import { redirect } from 'next/navigation'
 export type ActionResponse = {
   success: boolean
   error?: string
+  hasSession?: boolean
 }
 
 export async function signUp(email: string, password: string, displayName: string): Promise<ActionResponse> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -30,7 +31,7 @@ export async function signUp(email: string, password: string, displayName: strin
       return { success: false, error: 'Check your email to confirm your account before logging in.' }
     }
 
-    return { success: true }
+    return { success: true, hasSession: !!data.session }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' }
   }
@@ -38,7 +39,7 @@ export async function signUp(email: string, password: string, displayName: strin
 
 export async function signIn(email: string, password: string): Promise<ActionResponse> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -56,13 +57,13 @@ export async function signIn(email: string, password: string): Promise<ActionRes
 }
 
 export async function signOut() {
-  const supabase = createClient()
+  const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/login')
 }
 
 export async function getSession() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { session }, error } = await supabase.auth.getSession()
   
   if (error) return null
@@ -70,7 +71,7 @@ export async function getSession() {
 }
 
 export async function getUser() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
   
   if (error) return null

@@ -9,7 +9,7 @@ export async function assembleCoachContext(userId: string): Promise<{
   recentInteractions: AiInteraction[]
   profileSummary: AiProfileSummary | null
 }> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
   const [
@@ -37,12 +37,19 @@ export async function assembleCoachContext(userId: string): Promise<{
     activity_level: profile.activity_level
   } : null
 
+  // Ensure no user_id or other PII is leaked in arrays
+  const stripUserId = <T extends { user_id?: string }>(item: T): Omit<T, 'user_id'> => {
+    const { user_id: _userId, ...rest } = item
+    void _userId
+    return rest
+  }
+
   return {
     profile: cleanProfile as Profile,
-    recentMeals: recentMeals || [],
-    recentWorkouts: recentWorkouts || [],
-    habits: habits || [],
-    recentInteractions: recentInteractions || [],
-    profileSummary: profileSummary || null
+    recentMeals: (recentMeals || []).map(stripUserId) as Meal[],
+    recentWorkouts: (recentWorkouts || []).map(stripUserId) as Workout[],
+    habits: (habits || []).map(stripUserId) as Habit[],
+    recentInteractions: (recentInteractions || []).map(stripUserId) as AiInteraction[],
+    profileSummary: profileSummary ? stripUserId(profileSummary) as AiProfileSummary : null
   }
 }

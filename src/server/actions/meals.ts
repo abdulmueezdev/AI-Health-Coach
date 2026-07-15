@@ -10,7 +10,7 @@ export type TypedActionResponse<T> = {
 }
 
 export async function createMeal(data: Omit<Meal, 'id' | 'user_id'>): Promise<TypedActionResponse<Meal>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -24,7 +24,7 @@ export async function createMeal(data: Omit<Meal, 'id' | 'user_id'>): Promise<Ty
 }
 
 export async function getMeals(): Promise<TypedActionResponse<Meal[]>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -35,7 +35,7 @@ export async function getMeals(): Promise<TypedActionResponse<Meal[]>> {
 }
 
 export async function updateMeal(id: string, updates: Partial<Omit<Meal, 'id' | 'user_id'>>): Promise<TypedActionResponse<Meal>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -46,7 +46,7 @@ export async function updateMeal(id: string, updates: Partial<Omit<Meal, 'id' | 
 }
 
 export async function deleteMeal(id: string): Promise<TypedActionResponse<void>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 

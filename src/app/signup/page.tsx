@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { signUp } from "@/server/actions/auth"
 
 export default function SignupPage() {
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -16,15 +18,22 @@ export default function SignupPage() {
   async function handleSubmit(formData: FormData) {
     setLoading(true)
     setError(null)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const name = formData.get("name") as string
     
-    const result = await signUp(formData)
+    const result = await signUp(email, password, name)
     
     if (result?.error) {
       setError(result.error)
       setLoading(false)
     } else {
-      setSuccess(true)
-      setLoading(false)
+      if (result.hasSession) {
+        router.push("/onboarding")
+      } else {
+        setSuccess(true)
+        setLoading(false)
+      }
     }
   }
 
@@ -67,6 +76,16 @@ export default function SignupPage() {
         </div>
 
         <form action={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input 
+              id="name" 
+              name="name" 
+              type="text" 
+              placeholder="Alex" 
+              required 
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input 

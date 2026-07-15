@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Play, Pause, Square, Send, RotateCcw } from "lucide-react"
 import { askCoach } from "@/server/actions/coach"
+import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
 
 interface Message {
   id: string
@@ -30,6 +31,15 @@ export default function CoachChat({ userId }: { userId: string }) {
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [playingId, setPlayingId] = useState<string | null>(null)
+  const [pageLoading] = useState(false)
+  const [error] = useState<string | null>(null)
+  const [isEmpty] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const showToast = (message: string) => {
+    setToastMessage(message)
+    setTimeout(() => setToastMessage(null), 5000)
+  }
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -49,13 +59,26 @@ export default function CoachChat({ userId }: { userId: string }) {
     setMessages(prev => [...prev, userMsg])
     setInput("")
     setLoading(true)
+    setToastMessage(null)
 
     try {
-      const responseText = await askCoach(userMsg.content, userId)
-      const coachMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: responseText }
-      setMessages(prev => [...prev, coachMsg])
+      const response = await askCoach(userMsg.content, userId)
+      if (response.success && response.data) {
+        const coachMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: response.data }
+        setMessages(prev => [...prev, coachMsg])
+      } else {
+        if (response.code === 'RATE_LIMIT') {
+          showToast("We're receiving too many requests. Please wait a moment.")
+        } else if (response.code === 'TIMEOUT') {
+          showToast("Request timed out. Please try again.")
+        } else {
+          showToast(response.error || "Failed to get response.")
+        }
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, I'm having trouble connecting right now." }])
+      }
     } catch (error) {
       console.error("Failed to get response:", error)
+      showToast("An unexpected error occurred.")
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, I'm having trouble connecting right now." }])
     } finally {
       setLoading(false)
@@ -65,15 +88,24 @@ export default function CoachChat({ userId }: { userId: string }) {
   // Voice controls
   const playVoice = (text: string, id: string) => {
     if (typeof window !== "undefined" && window.responsiveVoice) {
-      if (playingId === id) {
-        window.responsiveVoice.resume()
-      } else {
-        window.responsiveVoice.cancel()
-        setPlayingId(id)
-        window.responsiveVoice.speak(text, "US English Female", {
-          onend: () => setPlayingId(null)
-        })
+      try {
+        if (playingId === id) {
+          window.responsiveVoice.resume()
+        } else {
+          window.responsiveVoice.cancel()
+          setPlayingId(id)
+          window.responsiveVoice.speak(text, "US English Female", {
+            onend: () => setPlayingId(null)
+          })
+        }
+      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _e = err
+        setPlayingId(null)
+        showToast("Voice playback is currently unavailable.")
       }
+    } else {
+      showToast("Voice engine not loaded.")
     }
   }
 
@@ -97,9 +129,29 @@ export default function CoachChat({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="flex flex-col h-[600px] w-full bg-gray-50/30">
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        <AnimatePresence initial={false}>
+    <div className="flex flex-col h-[600px] w-full bg-gray-50/30 relative overflow-hidden">
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -20, x: "-50%" }}
+            className="absolute top-4 left-1/2 z-50 bg-accent-primary/90 backdrop-blur text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium whitespace-nowrap"
+          >
+            {toastMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {pageLoading ? (
+        <div className="p-6 h-full flex items-center"><LoadingSkeleton /></div>
+      ) : error ? (
+        <div className="p-6 h-full flex items-center"><ErrorState message={error} onRetry={() => window.location.reload()} /></div>
+      ) : isEmpty ? (
+        <div className="p-6 h-full flex items-center"><EmptyState title="No active chats" description="Start a new conversation with Vitalis for personalized advice." actionText="New Chat" onAction={() => console.log('new chat')} /></div>
+      ) : (
+        <>
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
@@ -200,6 +252,8 @@ export default function CoachChat({ userId }: { userId: string }) {
           </Button>
         </form>
       </div>
+      </>
+      )}
     </div>
   )
 }

@@ -5,8 +5,14 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, TrendingDown } from "lucide-react"
+import { useState } from "react"
+import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
 
 export default function ProgressPage() {
+  const [loading] = useState(false)
+  const [error] = useState<string | null>(null)
+  const [isEmpty] = useState(false)
+
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-10">
@@ -21,12 +27,24 @@ export default function ProgressPage() {
         </Button>
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="mb-8">
+      {loading ? (
+        <LoadingSkeleton />
+      ) : error ? (
+        <ErrorState message={error} onRetry={() => window.location.reload()} />
+      ) : isEmpty ? (
+        <EmptyState 
+          title="No progress data" 
+          description="Log your weight to start visualizing your journey and milestones."
+          actionText="Log Weight"
+          onAction={() => console.log('Log weight clicked')}
+        />
+      ) : (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="mb-8">
           <CardContent className="p-8">
             <div className="flex justify-between items-start mb-8">
               <div>
@@ -79,6 +97,7 @@ export default function ProgressPage() {
           </CardContent>
         </Card>
       </motion.div>
+      )}
     </DashboardLayout>
   )
 }

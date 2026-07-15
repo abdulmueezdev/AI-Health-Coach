@@ -74,32 +74,51 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
       </aside>
 
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-around border-t border-gray-200 bg-sidebar sm:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        {navItems.slice(0, 5).map((item) => {
-          const isActive = pathname === item.href
-          return (
-            <Link 
-              key={item.name} 
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center p-2 transition-colors",
-                isActive ? "text-accent-primary" : "text-text-secondary hover:text-text-primary"
-              )}
-            >
-              <item.icon className="h-5 w-5 mb-1" strokeWidth={isActive ? 2.5 : 2} />
-              <span className="text-[10px] font-medium">{item.name}</span>
-            </Link>
-          )
-        })}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center overflow-x-auto hide-scrollbar border-t border-gray-200 bg-sidebar sm:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <div className="flex w-full min-w-max px-2">
+          {[...navItems, { name: "Settings", href: "/settings", icon: Settings }].map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link 
+                key={item.name} 
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center justify-center p-2 min-w-[72px] min-h-[44px] transition-colors",
+                  isActive ? "text-accent-primary" : "text-text-secondary hover:text-text-primary"
+                )}
+              >
+                <item.icon className="h-5 w-5 mb-1" strokeWidth={isActive ? 2.5 : 2} />
+                <span className="text-[10px] font-medium">{item.name}</span>
+              </Link>
+            )
+          })}
+        </div>
       </nav>
 
       {/* Main Content Area */}
       <main className={cn(
-        "flex-1 overflow-y-auto pt-8 pb-24 sm:pb-8 sm:pl-[80px] transition-all duration-300",
+        "flex-1 overflow-y-auto pt-6 pb-24 sm:pt-8 sm:pb-8 sm:pl-[80px] transition-all duration-300",
         insightPanel ? "lg:pr-[360px]" : ""
       )}>
-        <div className="mx-auto max-w-5xl px-6">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
           {children}
+
+          {/* Mobile Insight Panel Accordion */}
+          {insightPanel && (
+            <div className="mt-8 block lg:hidden">
+              <details className="group rounded-2xl bg-panel-accent/30 border border-panel-accent/20 backdrop-blur-sm overflow-hidden mb-8">
+                <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-zodiak text-lg font-bold outline-none">
+                  <span>AI Insights & Details</span>
+                  <span className="transition group-open:rotate-180">
+                    <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                  </span>
+                </summary>
+                <div className="p-4 pt-0">
+                  {insightPanel}
+                </div>
+              </details>
+            </div>
+          )}
         </div>
       </main>
 

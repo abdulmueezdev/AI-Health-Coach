@@ -10,7 +10,7 @@ export type TypedActionResponse<T> = {
 }
 
 export async function logInteraction(data: Omit<AiInteraction, 'id' | 'user_id' | 'created_at'>): Promise<TypedActionResponse<AiInteraction>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -24,7 +24,7 @@ export async function logInteraction(data: Omit<AiInteraction, 'id' | 'user_id' 
 }
 
 export async function getRecentInteractions(limit: number = 20): Promise<TypedActionResponse<AiInteraction[]>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 

@@ -32,7 +32,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        comico: ["var(--font-comico)", "sans-serif"],
+        comico: ["Fredoka", "sans-serif"],
         zodiak: ["var(--font-zodiak)", "serif"],
         sans: ["var(--font-inter)", "sans-serif"],
       },

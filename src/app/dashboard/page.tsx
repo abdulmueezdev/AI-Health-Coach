@@ -6,6 +6,10 @@ import { useUser } from "@/lib/hooks/useUser"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Flame, Target, Trophy, ArrowUpRight } from "lucide-react"
+import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { getMeals } from "@/server/actions/meals"
+import { getWorkouts } from "@/server/actions/workouts"
+import { getHabits } from "@/server/actions/habits"
 
 // Simple CountUp component
 function CountUp({ end, suffix = "", duration = 2 }: { end: number, suffix?: string, duration?: number }) {
@@ -38,6 +42,50 @@ function CountUp({ end, suffix = "", duration = 2 }: { end: number, suffix?: str
 
 export default function DashboardPage() {
   const { profile } = useUser()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isEmpty, setIsEmpty] = useState(true)
+
+  const [calories, setCalories] = useState(0)
+  const [workoutsCount, setWorkoutsCount] = useState(0)
+  const [habitsData, setHabitsData] = useState<{name: string, completed_today: boolean}[]>([])
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [mealsRes, workoutsRes, habitsRes] = await Promise.all([
+          getMeals(),
+          getWorkouts(),
+          getHabits()
+        ])
+        
+        if (mealsRes.error) throw new Error(mealsRes.error)
+        if (workoutsRes.error) throw new Error(workoutsRes.error)
+        if (habitsRes.error) throw new Error(habitsRes.error)
+
+        const meals = mealsRes.data || []
+        const workouts = workoutsRes.data || []
+        const habits = habitsRes.data || []
+
+        const totalCals = meals.reduce((sum, m) => sum + (m.calories_estimate || 0), 0)
+        setCalories(totalCals)
+        setWorkoutsCount(workouts.length)
+        setHabitsData(habits.map(h => {
+          const today = new Date().toISOString().split('T')[0]
+          const completedToday = h.last_completed_at ? h.last_completed_at.startsWith(today) : false
+          return { name: h.name, completed_today: completedToday }
+        }))
+
+        setIsEmpty(meals.length === 0 && workouts.length === 0 && habits.length === 0)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard data')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -95,19 +143,34 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="mb-10"
+        className="mb-8 sm:mb-10"
       >
-        <h1 className="font-zodiak text-4xl font-bold mb-2">Good Morning, {profile?.display_name || "there"}</h1>
-        <p className="text-text-secondary font-sans text-lg">
-          You&apos;re on track! Your recovery score is <span className="text-status-positive font-bold">88%</span> today.
-        </p>
+        <h1 className="font-zodiak text-3xl sm:text-4xl font-bold mb-2">Good Morning, {profile?.display_name || "there"}</h1>
+        {!loading && !error && !isEmpty && (
+          <p className="text-text-secondary font-sans text-base sm:text-lg">
+            You&apos;re on track! Your recovery score is <span className="text-status-positive font-bold">88%</span> today.
+          </p>
+        )}
       </motion.div>
 
-      <motion.div 
+      {loading ? (
+        <LoadingSkeleton />
+      ) : error ? (
+        <ErrorState message={error} onRetry={() => window.location.reload()} />
+      ) : isEmpty ? (
+        <EmptyState 
+          title="Welcome to Vitalis" 
+          description="Your dashboard is looking a little empty. Start by logging a meal or planning your first workout!"
+          actionText="Log First Meal"
+          onAction={() => window.location.href = '/meals'}
+        />
+      ) : (
+        <>
+          <motion.div 
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-10"
       >
         {/* Stat Card 1: Calories */}
         <motion.div variants={item}>
@@ -118,7 +181,7 @@ export default function DashboardPage() {
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Calories</h3>
               <div className="font-comico text-3xl font-bold text-text-primary mb-2">
-                <CountUp end={1840} /> <span className="text-base text-text-secondary font-sans font-normal">/ 2400</span>
+                <CountUp end={calories} /> <span className="text-base text-text-secondary font-sans font-normal">/ 2400</span>
               </div>
               <div className="text-xs font-medium px-3 py-1 bg-panel-accent/30 text-teal-800 rounded-full mt-auto">
                 Goal: Weight Loss
@@ -136,7 +199,7 @@ export default function DashboardPage() {
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Workouts</h3>
               <div className="font-comico text-3xl font-bold text-text-primary mb-2">
-                <CountUp end={4} /> <span className="text-base text-text-secondary font-sans font-normal">/ 5 days</span>
+                <CountUp end={workoutsCount} /> <span className="text-base text-text-secondary font-sans font-normal">/ 5 days</span>
               </div>
               <div className="w-full mt-auto pt-4 flex gap-1 h-8 items-end justify-center">
                 {[1, 1, 1, 1, 0, 0, 0].map((active, i) => (
@@ -156,7 +219,7 @@ export default function DashboardPage() {
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Weight Progress</h3>
               <div className="font-comico text-3xl font-bold text-text-primary mb-2">
-                -<CountUp end={4} /><span className="font-sans">.2</span> <span className="text-base text-text-secondary font-sans font-normal">lbs</span>
+                -<CountUp end={0} /><span className="font-sans">.0</span> <span className="text-base text-text-secondary font-sans font-normal">lbs</span>
               </div>
               <div className="text-xs font-medium text-status-positive mt-auto flex items-center gap-1">
                 <ArrowUpRight className="w-3 h-3 rotate-90" /> On Track
@@ -174,35 +237,41 @@ export default function DashboardPage() {
         viewport={{ once: true, margin: "-50px" }}
         className="space-y-4"
       >
-        <h2 className="font-zodiak text-2xl font-bold mb-6">Today&apos;s Habits</h2>
-        {[
-          { name: "Hydration", current: "2.1L", total: "3.0L", progress: 70, color: "bg-blue-500" },
-          { name: "Sleep", current: "7.2h", total: "8.0h", progress: 90, color: "bg-indigo-500" },
-          { name: "Steps", current: "8,432", total: "10k", progress: 84, color: "bg-green-500" }
-        ].map((habit, i) => (
+        <h2 className="font-zodiak text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Today&apos;s Habits</h2>
+        {habitsData.length === 0 ? (
+          <p className="text-text-secondary text-sm">No habits created yet. Go to Habits to set one up!</p>
+        ) : (
+          habitsData.map((habit, i) => {
+            const completed = habit.completed_today ? 100 : 0
+            const color = habit.completed_today ? "bg-green-500" : "bg-blue-500"
+            return (
           <motion.div variants={item} key={i}>
             <Card className="group hover:border-panel-accent/50 transition-colors cursor-pointer">
               <CardContent className="p-4 flex items-center gap-4">
                 <div className="flex-1">
                   <div className="flex justify-between mb-2">
                     <span className="font-medium text-sm">{habit.name}</span>
-                    <span className="text-xs text-text-secondary">{habit.current} / {habit.total}</span>
+                    <span className="text-xs text-text-secondary">{habit.completed_today ? "Done" : "Pending"}</span>
                   </div>
                   <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
-                      whileInView={{ width: `${habit.progress}%` }}
+                      whileInView={{ width: `${completed}%` }}
                       transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
                       viewport={{ once: true }}
-                      className={`h-full rounded-full ${habit.color}`}
+                      className={`h-full rounded-full ${color}`}
                     />
                   </div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
-        ))}
+          )
+        })
+      )}
       </motion.div>
+        </>
+      )}
     </DashboardLayout>
   )
 }

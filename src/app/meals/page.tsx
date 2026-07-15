@@ -1,29 +1,75 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Camera, Plus, Clock, Flame } from "lucide-react"
-
-interface Meal {
-  id: string
-  name: string
-  created_at: string
-  calories_estimate: number
-  meal_type: string
-}
+import { Camera, Plus, Clock, Flame, X } from "lucide-react"
+import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { getMeals, createMeal } from "@/server/actions/meals"
+import { Meal } from "@/types/database"
 
 export default function MealsPage() {
-  const [meals] = useState<Meal[]>([])
-  const [loading] = useState(false)
-
-  // In a real app, this would fetch from Phase 3 server actions (getMeals)
-  // Since we're instructed "No mock data by end of Phase 4", we should theoretically call the real action.
-  // We'll mock the hook for UI display purposes but add the import reference.
+  const [meals, setMeals] = useState<Meal[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
+  const [showManualLog, setShowManualLog] = useState(false)
+  const [newMealName, setNewMealName] = useState("")
+  const [newMealCalories, setNewMealCalories] = useState("")
+  const [newMealType, setNewMealType] = useState("Snack")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const loadMeals = async () => {
+    try {
+      setLoading(true)
+      const res = await getMeals()
+      if (res.success && res.data) {
+        setMeals(res.data)
+      } else {
+        setError(res.error || "Failed to load meals")
+      }
+    } catch {
+      setError("An unexpected error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadMeals()
+  }, [])
+
+  const handleManualLog = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newMealName || !newMealCalories) return
+    setIsSubmitting(true)
+    try {
+      const res = await createMeal({
+        description: newMealName, // using description as name
+        calories_estimate: parseInt(newMealCalories, 10),
+        macros: { protein: 0, carbs: 0, fat: 0 },
+        source: 'manual',
+        photo_url: null,
+        logged_at: new Date().toISOString(),
+      })
+      if (res.success) {
+        setShowManualLog(false)
+        setNewMealName("")
+        setNewMealCalories("")
+        setNewMealType("Snack")
+        loadMeals()
+      } else {
+        alert("Failed to log meal: " + res.error)
+      }
+    } catch {
+      alert("Error logging meal")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -65,22 +111,84 @@ export default function MealsPage() {
             <Button asChild variant="outline">
               <label htmlFor="meal-photo" className="cursor-pointer">Choose Photo</label>
             </Button>
-            <Button>
+            <Button onClick={() => setShowManualLog(true)}>
               <Plus className="w-4 h-4 mr-2" /> Manual Log
             </Button>
           </div>
         </CardContent>
       </Card>
 
+      {showManualLog && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+          >
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-sidebar">
+              <h3 className="font-zodiak text-xl font-bold">Log a Meal</h3>
+              <button onClick={() => setShowManualLog(false)} className="text-text-secondary hover:text-text-primary p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleManualLog} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Meal Name</label>
+                <Input 
+                  value={newMealName} 
+                  onChange={e => setNewMealName(e.target.value)} 
+                  placeholder="e.g. Grilled Chicken Salad" 
+                  required 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Estimated Calories</label>
+                <Input 
+                  type="number" 
+                  value={newMealCalories} 
+                  onChange={e => setNewMealCalories(e.target.value)} 
+                  placeholder="e.g. 450" 
+                  required 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Type</label>
+                <select 
+                  className="w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  value={newMealType} 
+                  onChange={e => setNewMealType(e.target.value)}
+                >
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Dinner">Dinner</option>
+                  <option value="Snack">Snack</option>
+                </select>
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <Button type="button" variant="ghost" onClick={() => setShowManualLog(false)}>Cancel</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save Meal"}
+                </Button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
       <div className="space-y-6">
         <h2 className="font-zodiak text-2xl font-bold">Recent Meals</h2>
         
         {loading ? (
-          <div className="text-text-secondary">Loading meals...</div>
+          <LoadingSkeleton />
+        ) : error ? (
+          <ErrorState message={error} onRetry={() => window.location.reload()} />
         ) : meals.length === 0 ? (
-          <div className="text-center py-12 text-text-secondary">
-            No meals logged today. Start by uploading a photo!
-          </div>
+          <EmptyState 
+            title="No meals logged today" 
+            description="Start tracking your nutrition by uploading a photo of your food. Our AI will handle the calories and macros."
+            actionText="Upload Photo"
+            onAction={() => document.getElementById('meal-photo')?.click()}
+          />
         ) : (
           <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
             {meals.map((meal) => (
@@ -88,14 +196,14 @@ export default function MealsPage() {
                 <Card className="hover:border-panel-accent/50 transition-colors">
                   <CardContent className="p-6 flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-lg">{meal.name}</h4>
+                      <h4 className="font-bold text-lg">{meal.description}</h4>
                       <div className="flex items-center gap-4 text-sm text-text-secondary mt-1">
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(meal.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(meal.logged_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                         <span className="flex items-center gap-1"><Flame className="w-3 h-3" /> {meal.calories_estimate} kcal</span>
                       </div>
                     </div>
                     <div className="text-sm font-medium px-3 py-1 bg-gray-100 rounded-full">
-                      {meal.meal_type || 'Snack'}
+                      {meal.source}
                     </div>
                   </CardContent>
                 </Card>

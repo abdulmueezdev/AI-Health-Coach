@@ -10,7 +10,7 @@ export type TypedActionResponse<T> = {
 }
 
 export async function createGoal(data: Omit<Goal, 'id' | 'user_id' | 'status'>): Promise<TypedActionResponse<Goal>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -25,7 +25,7 @@ export async function createGoal(data: Omit<Goal, 'id' | 'user_id' | 'status'>):
 }
 
 export async function getGoals(): Promise<TypedActionResponse<Goal[]>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -36,7 +36,7 @@ export async function getGoals(): Promise<TypedActionResponse<Goal[]>> {
 }
 
 export async function updateGoal(id: string, updates: Partial<Omit<Goal, 'id' | 'user_id'>>): Promise<TypedActionResponse<Goal>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -47,7 +47,7 @@ export async function updateGoal(id: string, updates: Partial<Omit<Goal, 'id' | 
 }
 
 export async function deleteGoal(id: string): Promise<TypedActionResponse<void>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 

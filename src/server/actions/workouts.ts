@@ -10,7 +10,7 @@ export type TypedActionResponse<T> = {
 }
 
 export async function createWorkout(data: Omit<Workout, 'id' | 'user_id'>): Promise<TypedActionResponse<Workout>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -24,7 +24,7 @@ export async function createWorkout(data: Omit<Workout, 'id' | 'user_id'>): Prom
 }
 
 export async function getWorkouts(): Promise<TypedActionResponse<Workout[]>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -35,7 +35,7 @@ export async function getWorkouts(): Promise<TypedActionResponse<Workout[]>> {
 }
 
 export async function updateWorkout(id: string, updates: Partial<Omit<Workout, 'id' | 'user_id'>>): Promise<TypedActionResponse<Workout>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -46,7 +46,7 @@ export async function updateWorkout(id: string, updates: Partial<Omit<Workout, '
 }
 
 export async function deleteWorkout(id: string): Promise<TypedActionResponse<void>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 

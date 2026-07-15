@@ -13,7 +13,7 @@ export type OnboardingData = {
 }
 
 export async function completeOnboarding(data: OnboardingData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user }, error: userError } = await supabase.auth.getUser()
 
   if (userError || !user) {

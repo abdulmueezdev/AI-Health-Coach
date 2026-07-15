@@ -10,7 +10,7 @@ export type TypedActionResponse<T> = {
 }
 
 export async function createSnapshot(data: Omit<ProgressSnapshot, 'id' | 'user_id'>): Promise<TypedActionResponse<ProgressSnapshot>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -24,7 +24,7 @@ export async function createSnapshot(data: Omit<ProgressSnapshot, 'id' | 'user_i
 }
 
 export async function getSnapshots(): Promise<TypedActionResponse<ProgressSnapshot[]>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -35,7 +35,7 @@ export async function getSnapshots(): Promise<TypedActionResponse<ProgressSnapsh
 }
 
 export async function deleteSnapshot(id: string): Promise<TypedActionResponse<void>> {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
