@@ -82,7 +82,7 @@ export default function SignupPage() {
               id="name" 
               name="name" 
               type="text" 
-              placeholder="Alex" 
+              placeholder="John" 
               required 
             />
           </div>
@@ -92,7 +92,7 @@ export default function SignupPage() {
               id="email" 
               name="email" 
               type="email" 
-              placeholder="alex@example.com" 
+              placeholder="john@example.com" 
               required 
             />
           </div>
