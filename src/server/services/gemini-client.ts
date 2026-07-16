@@ -1,13 +1,26 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { serverEnv } from '@/lib/env/server'
+
+let genAI: GoogleGenerativeAI | null = null
+let model: ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null = null
+
+function getModel() {
+  if (!genAI) {
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY is not set')
+    }
+    genAI = new GoogleGenerativeAI(apiKey)
+    model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  }
+  return model!
+}
 
 export async function analyzeImage(imageBase64: string): Promise<{
   description: string
   calories: number
   macros: { protein: number; carbs: number; fat: number }
 }> {
-  const genAI = new GoogleGenerativeAI(serverEnv.GEMINI_API_KEY)
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+  const model = getModel()
 
   const prompt = `Analyze this meal photo. Return ONLY a valid JSON object matching this schema exactly, with no markdown formatting or other text:
 {
