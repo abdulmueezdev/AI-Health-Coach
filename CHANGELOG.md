@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.2] - 2026-07-16
+
+### User Experience (Phase 8, Item 1)
+- **Dark Mode Toggle**: Added full dark mode support using `next-themes` + CSS custom properties + Tailwind `darkMode: 'class'`.
+  - System preference respected by default (`prefers-color-scheme`)
+  - Toggle button in sidebar (desktop + mobile) and Settings page
+  - Smooth color transitions across all pages
+  - Zero component file changes required — pure CSS variable architecture
+  - All design tokens mapped: bg-canvas, bg-sidebar, bg-panel-accent, text-primary, text-secondary, card-bg
+- **Fonts**: Verified Fredoka + Playfair Display render correctly in both light and dark modes
+
+### Technical Details
+- 8 commits across dark mode implementation
+- Zero build errors, zero TypeScript errors
+- Client-side visual testing verified via chrome-devtools-mcp
+- All changes pushed to `origin/main`
+
 ## [1.0.1] - 2026-07-16
 
 ### Security & Storage Hardening (Phase 7)

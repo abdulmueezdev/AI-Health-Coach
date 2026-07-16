@@ -182,6 +182,10 @@ Next.js (App Router) + TypeScript + Tailwind CSS, Supabase (Postgres/Auth/Storag
 
 ## Project Complete Status
 
+**Phase 8, Item 1 COMPLETE.**
+- v1.0.2 tagged and released.
+- Ready for Phase 8, Item 2 or Vercel redeployment.
+
 **Phase 7 COMPLETE.** All chunks for all 7 phases have been successfully executed, tested, and finalized.
 - v1.0.1 tagged and released.
 - **Vercel deployment prep: COMPLETE.**
