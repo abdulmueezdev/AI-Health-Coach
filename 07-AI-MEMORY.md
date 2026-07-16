@@ -189,3 +189,16 @@ Next.js (App Router) + TypeScript + Tailwind CSS, Supabase (Postgres/Auth/Storag
   - Minor Next.js `<img>` warning noted in `src/app/meals/page.tsx`, no blockers.
   - Deployment docs and `VERCEL_DEPLOY.md` finalized.
 - The codebase is ready for Phase 8.
+
+## Phase 8, Item 1: Dark Mode Toggle — COMPLETE
+- **Files Changed**:
+  - `src/app/globals.css`: Added CSS variables for dark mode overrides.
+  - `tailwind.config.ts`: Added `darkMode: 'class'` and mapped color tokens to CSS variables.
+  - `src/app/layout.tsx`: Wrapped with `<ThemeProvider>` and added `suppressHydrationWarning`.
+  - `src/components/theme/ThemeProvider.tsx`: New wrapper for `next-themes`.
+  - `src/components/theme/ThemeToggle.tsx`: New component to toggle between light/dark/system themes.
+  - `src/components/layout/dashboard-layout.tsx`: Included toggle in sidebar and mobile nav.
+  - `src/app/settings/page.tsx`: Added an "Appearance" settings card with the toggle.
+- **Architecture Details**: Utilizes CSS variables + `next-themes` + Tailwind `darkMode: 'class'`. `next-themes` manages the `dark` class on the `html` element dynamically.
+- **Known Issue**: The Sign Out button has hardcoded colors that won't switch seamlessly in dark mode. (Scheduled for future polish).
+- **Testing Limitation**: Full client-side toggle execution requires manual browser verification as server-side rendering checks (e.g., `curl`) can only confirm baseline injection.
