@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,27 +9,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#F7F3EE",
-        sidebar: "#FFFFFF",
+        canvas: 'var(--bg-canvas)',
+        sidebar: 'var(--bg-sidebar)',
+        'panel-accent': 'var(--bg-panel-accent)',
+        'accent-primary': 'var(--accent-primary)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'card-bg': 'var(--card-bg)',
+        'status-positive': 'var(--status-positive)',
+        'status-warning': 'var(--status-warning)',
+        
+        // Keep existing nested mappings in case they are used
         panel: {
-          accent: "#C3DEDD",
+          accent: 'var(--bg-panel-accent)',
         },
         accent: {
-          primary: "#EF5B4B",
+          primary: 'var(--accent-primary)',
         },
         brand: {
-          primary: "#17181C",
-          secondary: "#9B9B9B",
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
         },
         status: {
-          positive: "#3FAE71",
-          warning: "#E0A020",
+          positive: 'var(--status-positive)',
+          warning: 'var(--status-warning)',
         },
         illustration: {
           warm: "#F5DCC0",
         },
         card: {
-          bg: "#FFFFFF",
+          bg: 'var(--card-bg)',
         },
       },
       fontFamily: {
