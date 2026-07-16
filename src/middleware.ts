@@ -55,18 +55,17 @@ export async function middleware(request: NextRequest) {
   const currentPath = request.nextUrl.pathname
   const isProtectedRoute = PROTECTED_ROUTES.some(route => currentPath.startsWith(route))
 
+  if (user && currentPath === '/verify-email') {
+    const dashboardUrl = request.nextUrl.clone()
+    dashboardUrl.pathname = '/dashboard'
+    return NextResponse.redirect(dashboardUrl)
+  }
+
   if (isProtectedRoute) {
     if (!user) {
       const loginUrl = request.nextUrl.clone()
       loginUrl.pathname = '/login'
       return NextResponse.redirect(loginUrl)
-    }
-
-    if (!user.email_confirmed_at) {
-      const verifyUrl = request.nextUrl.clone()
-      verifyUrl.pathname = '/verify-email'
-      verifyUrl.searchParams.set('email', user.email || '')
-      return NextResponse.redirect(verifyUrl)
     }
 
     const { data: profile } = await supabase

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, Suspense, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -12,9 +12,18 @@ function VerifyEmailContent() {
   
   const [resending, setResending] = useState(false)
   const [resendStatus, setResendStatus] = useState<"idle" | "success" | "error">("idle")
+  const [cooldown, setCooldown] = useState(0)
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [cooldown])
 
   const handleResend = async () => {
-    if (resending || resendStatus === "success") return
+    if (resending || cooldown > 0) return
     
     setResending(true)
     setResendStatus("idle")
@@ -25,6 +34,7 @@ function VerifyEmailContent() {
       // supabase.auth.resend({ type: 'signup', email })
       await new Promise(resolve => setTimeout(resolve, 1000)) // mock delay
       setResendStatus("success")
+      setCooldown(60) // 60 seconds cooldown
     } catch {
       setResendStatus("error")
     } finally {
@@ -61,10 +71,10 @@ function VerifyEmailContent() {
           <Button 
             variant="ghost" 
             onClick={handleResend}
-            disabled={resending || resendStatus === "success"}
+            disabled={resending || cooldown > 0}
             className="text-accent-primary hover:text-accent-primary hover:bg-accent-primary/10"
           >
-            {resending ? "Sending..." : resendStatus === "success" ? "Email sent!" : "Click to resend"}
+            {resending ? "Sending..." : cooldown > 0 ? `Wait ${cooldown}s` : resendStatus === "success" ? "Email sent!" : "Click to resend"}
           </Button>
           
           {resendStatus === "error" && (

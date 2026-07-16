@@ -49,6 +49,7 @@ export async function signUp(email: string, password: string, displayName: strin
 }
 
 export async function signIn(email: string, password: string): Promise<ActionResponse> {
+  let needsVerification = false;
   try {
     const supabase = await createClient()
 
@@ -58,13 +59,24 @@ export async function signIn(email: string, password: string): Promise<ActionRes
     })
 
     if (error) {
-      return { success: false, error: error.message }
+      if (error.message.toLowerCase().includes('email not confirmed')) {
+        needsVerification = true;
+      } else {
+        return { success: false, error: error.message }
+      }
     }
 
-    return { success: true }
+    if (!needsVerification) {
+      return { success: true }
+    }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' }
   }
+
+  if (needsVerification) {
+    redirect(`/verify-email?email=${encodeURIComponent(email)}`)
+  }
+  return { success: false, error: 'Email not confirmed' }
 }
 
 export async function signOut() {
