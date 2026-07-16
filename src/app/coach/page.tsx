@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+export const dynamic = 'force-dynamic'
 import { serverEnv } from "@/lib/env/server"
 import CoachChat from "./coach-chat"
 import Script from "next/script"
