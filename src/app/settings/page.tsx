@@ -140,19 +140,16 @@ export default function SettingsPage() {
 
           <motion.div variants={item}>
             <Card>
-              <CardHeader>
-                <CardTitle>Account</CardTitle>
-              </CardHeader>
               <CardContent>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <h4 className="font-bold text-text-primary">Sign Out</h4>
-                      <p className="text-sm text-text-secondary">Log out of your current session on this device.</p>
-                    </div>
-                    <Button type="button" variant="outline" className="bg-white border-gray-200 text-text-primary hover:bg-gray-50 gap-2" onClick={handleLogout}>
-                      <LogOut className="w-4 h-4" /> Sign Out
-                    </Button>
+                <div className="flex items-center justify-between pt-6">
+                  <div>
+                    <h4 className="font-bold text-text-primary">Sign Out</h4>
+                    <p className="text-sm text-text-secondary">Log out of your current session on this device.</p>
                   </div>
+                  <Button type="button" variant="outline" className="bg-white border-gray-200 text-text-primary hover:bg-gray-50 gap-2" onClick={handleLogout}>
+                    <LogOut className="w-4 h-4" /> Sign Out
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
