@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Camera, Plus, Clock, Flame, X } from "lucide-react"
 import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
-import { getMeals, createMeal } from "@/server/actions/meals"
+import { getMeals, createMeal, uploadMealPhoto } from "@/server/actions/meals"
 import { Meal } from "@/types/database"
 
 export default function MealsPage() {
@@ -70,6 +70,54 @@ export default function MealsPage() {
       setIsSubmitting(false)
     }
   }
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', file)
+
+      const [analyzeRes, uploadRes] = await Promise.all([
+        fetch('/api/meals/analyze', {
+          method: 'POST',
+          body: formData
+        }).then(r => r.json()),
+        uploadMealPhoto(uploadFormData)
+      ])
+
+      if (analyzeRes.error) throw new Error(analyzeRes.error)
+      if (!uploadRes.success) throw new Error(uploadRes.error)
+
+      const createRes = await createMeal({
+        description: analyzeRes.description || 'Analyzed Meal',
+        calories_estimate: analyzeRes.calories_estimate || 0,
+        macros: analyzeRes.macros || { protein: 0, carbs: 0, fat: 0 },
+        source: 'photo',
+        photo_url: uploadRes.data || null,
+        logged_at: new Date().toISOString(),
+      })
+
+      if (createRes.success) {
+        loadMeals()
+      } else {
+        throw new Error(createRes.error)
+      }
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : String(err) || "Failed to process photo")
+    } finally {
+      setIsSubmitting(false)
+      if (e.target) e.target.value = ''
+    }
+  }
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -107,8 +155,8 @@ export default function MealsPage() {
             Snap a picture of your food and our AI will estimate the calories and macros automatically.
           </p>
           <div className="flex items-center gap-4">
-            <Input type="file" accept="image/*" className="hidden" id="meal-photo" />
-            <Button asChild variant="outline">
+            <Input type="file" accept="image/*" className="hidden" id="meal-photo" onChange={handlePhotoUpload} disabled={isSubmitting} />
+            <Button asChild variant="outline" disabled={isSubmitting}>
               <label htmlFor="meal-photo" className="cursor-pointer">Choose Photo</label>
             </Button>
             <Button onClick={() => setShowManualLog(true)}>
@@ -195,11 +243,18 @@ export default function MealsPage() {
               <motion.div variants={item} key={meal.id}>
                 <Card className="hover:border-panel-accent/50 transition-colors">
                   <CardContent className="p-6 flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-lg">{meal.description}</h4>
+                    <div className="flex items-center gap-4">
+                      {meal.photo_url && (
+                        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
+                          <img src={meal.photo_url} alt={meal.description} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-bold text-lg">{meal.description}</h4>
                       <div className="flex items-center gap-4 text-sm text-text-secondary mt-1">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(meal.logged_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                         <span className="flex items-center gap-1"><Flame className="w-3 h-3" /> {meal.calories_estimate} kcal</span>
+                      </div>
                       </div>
                     </div>
                     <div className="text-sm font-medium px-3 py-1 bg-gray-100 rounded-full">
