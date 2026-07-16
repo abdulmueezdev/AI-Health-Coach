@@ -184,4 +184,8 @@ Next.js (App Router) + TypeScript + Tailwind CSS, Supabase (Postgres/Auth/Storag
 
 **Phase 7 COMPLETE.** All chunks for all 7 phases have been successfully executed, tested, and finalized.
 - v1.0.1 tagged and released.
+- **Vercel deployment prep: COMPLETE.**
+  - Production build successfully validated.
+  - Minor Next.js `<img>` warning noted in `src/app/meals/page.tsx`, no blockers.
+  - Deployment docs and `VERCEL_DEPLOY.md` finalized.
 - The codebase is ready for Phase 8.
