@@ -1,30 +1,24 @@
-# Goal
+# Phase 7 Implementation Plan: Supabase Storage Signed URLs
 
-Implement Phase 7, Item 1: Supabase Storage Signed URLs for meal photos.
+## Chunk Breakdown
+* **Chunk 1: Server Actions Update** - Updated `src/server/actions/meals.ts` for file upload and signed URL logic.
+* **Chunk 2: Frontend Integration** - Updated `src/app/meals/page.tsx` for file handling and UI display.
+* **Chunk 3: Schema Verification** - Verified RLS policies for `meal-photos` in `src/lib/supabase/schema.sql`.
+* **Chunk 4: Compilation and Verification** - Ran strict type/build checks.
 
-## Proposed Changes
+## Security Decisions Made
+* **Authentication Guarding:** Added explicit `supabase.auth.getUser()` checks in server actions to prevent unauthorized access.
+* **Path Isolation:** Generated storage paths using `${user.id}/${fileName}` to enforce isolation.
+* **Row Level Security (RLS):** Verified `schema.sql` properly secures the bucket with `using ( bucket_id = 'meal-photos' and auth.uid()::text = (storage.foldername(name))[1] );`.
 
-We will break the implementation down into small, safe GSD Core chunks.
+## Build/Test Results per Chunk
+* **Chunk 1:** `npm run build` & `npx tsc --noEmit` passed.
+* **Chunk 2:** Failed initially (unclosed `<div>` and `any` type usage). Fixed issues, re-ran, and passed with 0 errors.
+* **Chunk 3:** Verified schema; no code changes required. `npm run build` passed.
+* **Chunk 4:** Final verification passed. Build completed successfully.
 
-### Chunk 1: Server Actions Update
-Update `src/server/actions/meals.ts`:
-- Add `uploadMealPhoto(formData: FormData)` action to upload file to `meal-photos` bucket in Supabase Storage. Returns the storage path.
-- Update `getMeals()` to iterate over meals and generate a signed URL (using `supabase.storage.from('meal-photos').createSignedUrl(meal.photo_url, 3600)`) for each meal that has a `photo_url`. It will inject the signed URL into the `meal` object returned to the frontend.
-
-### Chunk 2: Frontend Integration for Meal Photo Upload
-Update `src/app/meals/page.tsx`:
-- Handle the `<input type="file" id="meal-photo" />` change event.
-- Use `FormData` to pass the selected file to `uploadMealPhoto` server action.
-- On success, pass the returned `path` as `photo_url` to `createMeal()`.
-- Add an `Image` or `img` tag in the `Recent Meals` list to display the meal photo if `photo_url` is present.
-
-### Chunk 3: Update `schema.sql` (if needed)
-- Verify that `src/lib/supabase/schema.sql` properly allows users to upload, select, update, and delete their own files in the `meal-photos` bucket. The existing `using` policy may be sufficient, but we will ensure it's explicitly robust for `INSERT` if needed. (Skipped if already correct).
-
-### Chunk 4: Compilation and Verification
-- Run `npm run build` and `npx tsc --noEmit` to ensure TypeScript strict mode passes.
-- Verify that all `user.id` checks and `.eq('user_id', user.id)` logic are maintained.
-
-## Verification Plan
-1. `npx tsc --noEmit`
-2. `npm run build`
+## File Change Summary
+* `src/server/actions/meals.ts`: Added `uploadMealPhoto` and modified `getMeals`.
+* `src/app/meals/page.tsx`: Added photo upload logic, integrated with `analyze` API, and added `img` display for meals.
+* `07-AI-MEMORY.md`: Logged Phase 7 completion.
+* `08-IMPLEMENTATION-PLAN-PHASE7.md`: Created this documentation file.
