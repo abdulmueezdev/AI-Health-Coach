@@ -7,8 +7,8 @@
 
 @layer base {
   :root {
-    --font-comico: 'Fredoka', sans-serif;
-    --font-zodiak: 'Zodiak', serif;
+    --font-fredoka: 'Fredoka', sans-serif;
+    --font-playfair: 'Playfair Display', serif;
   }
 }
 :root {

@@ -32,8 +32,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        comico: ["Fredoka", "sans-serif"],
-        zodiak: ["var(--font-zodiak)", "serif"],
+        fredoka: ["Fredoka", "sans-serif"],
+        playfair: ["var(--font-playfair)", "serif"],
         sans: ["var(--font-inter)", "sans-serif"],
       },
       borderRadius: {
