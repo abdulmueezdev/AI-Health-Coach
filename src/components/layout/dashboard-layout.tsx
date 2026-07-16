@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/theme/ThemeToggle"
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -59,7 +60,8 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
             )
           })}
         </nav>
-        <div className="mt-auto">
+        <div className="mt-auto flex flex-col items-center gap-4">
+          <ThemeToggle />
           <Link 
             href="/settings"
             className={cn(
@@ -75,7 +77,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
 
       {/* Mobile Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center overflow-x-auto hide-scrollbar border-t border-gray-200 bg-sidebar sm:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <div className="flex w-full min-w-max px-2">
+        <div className="flex w-full min-w-max px-2 items-center">
           {[...navItems, { name: "Settings", href: "/settings", icon: Settings }].map((item) => {
             const isActive = pathname === item.href
             return (
@@ -92,6 +94,9 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
               </Link>
             )
           })}
+          <div className="flex items-center justify-center p-2 min-w-[72px]">
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 

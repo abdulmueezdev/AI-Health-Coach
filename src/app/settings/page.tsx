@@ -12,6 +12,7 @@ import { signOut } from "@/server/actions/auth"
 import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
 import { useUser } from "@/lib/hooks/useUser"
 import { useRouter } from "next/navigation"
+import { ThemeToggle } from "@/components/theme/ThemeToggle"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -75,69 +76,86 @@ export default function SettingsPage() {
       ) : (
         <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 max-w-3xl">
           <motion.div variants={item}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSave} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="displayName">Display Name</Label>
-                    <Input id="displayName" defaultValue={profile?.display_name || ""} />
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSave} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="displayName">Display Name</Label>
+                      <Input id="displayName" defaultValue={profile?.display_name || ""} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" defaultValue={user?.email || ""} disabled />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue={user?.email || ""} disabled />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="height">Height (in)</Label>
+                      <Input id="height" type="number" defaultValue={profile?.height || ""} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Starting Weight (lbs)</Label>
+                      <Input id="weight" type="number" defaultValue={profile?.starting_weight || ""} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="targetWeight">Target Weight (lbs)</Label>
+                      <Input id="targetWeight" type="number" defaultValue={profile?.target_weight || ""} />
+                    </div>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="height">Height (in)</Label>
-                    <Input id="height" type="number" defaultValue={profile?.height || ""} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="weight">Starting Weight (lbs)</Label>
-                    <Input id="weight" type="number" defaultValue={profile?.starting_weight || ""} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="targetWeight">Target Weight (lbs)</Label>
-                    <Input id="targetWeight" type="number" defaultValue={profile?.target_weight || ""} />
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <div className="text-sm text-status-positive font-medium h-5">
-                    {saved && "Settings saved successfully."}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="text-sm text-status-positive font-medium h-5">
+                      {saved && "Settings saved successfully."}
+                    </div>
+                    <Button type="submit" disabled={loading} className="gap-2">
+                      <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Changes"}
+                    </Button>
                   </div>
-                  <Button type="submit" disabled={loading} className="gap-2">
-                    <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Changes"}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-        <motion.div variants={item}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Account</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <motion.div variants={item}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Appearance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between p-4 rounded-card bg-canvas">
                   <div>
-                    <h4 className="font-bold text-text-primary">Sign Out</h4>
-                    <p className="text-sm text-text-secondary">Log out of your current session on this device.</p>
+                    <p className="font-medium text-text-primary">Theme</p>
+                    <p className="text-sm text-text-secondary">Choose your preferred appearance</p>
                   </div>
-                  <Button type="button" variant="outline" className="bg-white border-gray-200 text-text-primary hover:bg-gray-50 gap-2" onClick={handleLogout}>
-                    <LogOut className="w-4 h-4" /> Sign Out
-                  </Button>
+                  <ThemeToggle />
                 </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={item}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Account</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h4 className="font-bold text-text-primary">Sign Out</h4>
+                      <p className="text-sm text-text-secondary">Log out of your current session on this device.</p>
+                    </div>
+                    <Button type="button" variant="outline" className="bg-white border-gray-200 text-text-primary hover:bg-gray-50 gap-2" onClick={handleLogout}>
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </Button>
+                  </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </motion.div>
       )}
     </DashboardLayout>
