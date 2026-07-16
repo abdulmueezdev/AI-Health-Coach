@@ -44,7 +44,7 @@ Vitalis is a comprehensive fitness tracking and AI coaching web app. Snap meal p
 - **AI Chat/Inference**: [Groq](https://groq.com/) (Llama 3 70B)
 - **Text-to-Speech**: [ResponsiveVoice](https://responsivevoice.org/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Typography**: Fredoka & Zodiak fonts
+- **Typography**: Fredoka & Playfair Display fonts
 
 ---
 
@@ -165,7 +165,7 @@ Contributions are what make the open-source community such an amazing place to l
 
 [MIT](LICENSE) © 2026 Vitalis
 
-> **Note**: The Zodiak font is used under Fontshare's personal-use license. For commercial use, purchase a license or substitute with an open alternative.
+> **Note**: All fonts are open-source (OFL) via Google Fonts.
 
 <br/>
 <div align="center">
