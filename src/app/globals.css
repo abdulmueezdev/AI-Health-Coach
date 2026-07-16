@@ -9,24 +9,37 @@
   :root {
     --font-fredoka: 'Fredoka', sans-serif;
     --font-playfair: 'Playfair Display', serif;
+    --bg-canvas: #F7F3EE;
+    --bg-sidebar: #FFFFFF;
+    --bg-panel-accent: #C3DEDD;
+    --text-primary: #17181C;
+    --text-secondary: #9B9B9B;
+    --card-bg: #FFFFFF;
+    --accent-primary: #EF5B4B;
+    --status-positive: #3FAE71;
+    --status-warning: #E0A020;
   }
-}
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html.dark {
+    --bg-canvas: #1A1A1A;
+    --bg-sidebar: #242424;
+    --bg-panel-accent: #2A3F3D;
+    --text-primary: #F7F3EE;
+    --text-secondary: #6B6B6B;
+    --card-bg: #2A2A2A;
+    --accent-primary: #EF5B4B;
+    --status-positive: #3FAE71;
+    --status-warning: #E0A020;
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  *, *::before, *::after {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+  }
 }
 
 @layer utilities {
