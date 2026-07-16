@@ -25,7 +25,7 @@ function VerifyEmailContent() {
       // supabase.auth.resend({ type: 'signup', email })
       await new Promise(resolve => setTimeout(resolve, 1000)) // mock delay
       setResendStatus("success")
-    } catch (error) {
+    } catch {
       setResendStatus("error")
     } finally {
       setResending(false)
@@ -57,7 +57,7 @@ function VerifyEmailContent() {
         </Button>
         
         <div className="pt-4 border-t border-gray-100">
-          <p className="text-sm text-text-secondary mb-2">Didn't receive the email?</p>
+          <p className="text-sm text-text-secondary mb-2">Didn&apos;t receive the email?</p>
           <Button 
             variant="ghost" 
             onClick={handleResend}
