@@ -201,4 +201,4 @@ Next.js (App Router) + TypeScript + Tailwind CSS, Supabase (Postgres/Auth/Storag
   - `src/app/settings/page.tsx`: Added an "Appearance" settings card with the toggle.
 - **Architecture Details**: Utilizes CSS variables + `next-themes` + Tailwind `darkMode: 'class'`. `next-themes` manages the `dark` class on the `html` element dynamically.
 - **Known Issue**: The Sign Out button has hardcoded colors that won't switch seamlessly in dark mode. (Scheduled for future polish).
-- **Testing Limitation**: Full client-side toggle execution requires manual browser verification as server-side rendering checks (e.g., `curl`) can only confirm baseline injection.
+- **Testing Limitation**: Full client-side toggle execution manually verified via chrome-devtools-mcp. Visual tests on Landing, Dashboard, and Settings confirmed CSS variable injection and dark mode rendering works flawlessly.
