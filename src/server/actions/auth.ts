@@ -10,6 +10,7 @@ export type ActionResponse = {
 }
 
 export async function signUp(email: string, password: string, displayName: string): Promise<ActionResponse> {
+  let needsVerification = false;
   try {
     const supabase = await createClient()
     
@@ -28,13 +29,23 @@ export async function signUp(email: string, password: string, displayName: strin
     }
 
     if (!data.user) {
-      return { success: false, error: 'Check your email to confirm your account before logging in.' }
+      return { success: false, error: 'Something went wrong during sign up.' }
     }
 
-    return { success: true, hasSession: !!data.session }
+    if (!data.session) {
+      needsVerification = true;
+    } else {
+      return { success: true, hasSession: true }
+    }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' }
   }
+
+  if (needsVerification) {
+    redirect(`/verify-email?email=${encodeURIComponent(email)}`)
+  }
+  
+  return { success: true, hasSession: false }
 }
 
 export async function signIn(email: string, password: string): Promise<ActionResponse> {

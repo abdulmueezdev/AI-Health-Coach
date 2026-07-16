@@ -40,6 +40,16 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  const code = request.nextUrl.searchParams.get('code')
+
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code)
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.searchParams.delete('code')
+    redirectUrl.searchParams.delete('type')
+    return NextResponse.redirect(redirectUrl)
+  }
+
   const { data: { user } } = await supabase.auth.getUser()
 
   const currentPath = request.nextUrl.pathname
@@ -50,6 +60,13 @@ export async function middleware(request: NextRequest) {
       const loginUrl = request.nextUrl.clone()
       loginUrl.pathname = '/login'
       return NextResponse.redirect(loginUrl)
+    }
+
+    if (!user.email_confirmed_at) {
+      const verifyUrl = request.nextUrl.clone()
+      verifyUrl.pathname = '/verify-email'
+      verifyUrl.searchParams.set('email', user.email || '')
+      return NextResponse.redirect(verifyUrl)
     }
 
     const { data: profile } = await supabase
