@@ -37,7 +37,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
     <div className="flex min-h-screen bg-canvas text-text-primary selection:bg-accent-primary selection:text-white">
       {/* Sidebar: ~80px icon-only nav rail */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[80px] flex-col items-center border-r border-gray-200/50 bg-sidebar py-8 sm:flex shadow-sm">
-        <Link href="/dashboard" className="mb-12 flex h-12 w-12 items-center justify-center rounded-full bg-accent-primary text-white font-comico font-bold text-xl hover:scale-105 transition-transform">
+        <Link href="/dashboard" className="mb-12 flex h-12 w-12 items-center justify-center rounded-full bg-accent-primary text-white font-fredoka font-bold text-xl hover:scale-105 transition-transform">
           V
         </Link>
         <nav className="flex flex-1 flex-col items-center gap-6">
@@ -107,7 +107,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
           {insightPanel && (
             <div className="mt-8 block lg:hidden">
               <details className="group rounded-2xl bg-panel-accent/30 border border-panel-accent/20 backdrop-blur-sm overflow-hidden mb-8">
-                <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-zodiak text-lg font-bold outline-none">
+                <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-playfair text-lg font-bold outline-none">
                   <span>AI Insights & Details</span>
                   <span className="transition group-open:rotate-180">
                     <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>

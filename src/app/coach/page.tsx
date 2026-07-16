@@ -17,7 +17,7 @@ export default async function CoachPage() {
       <Script src={`https://code.responsivevoice.org/responsivevoice.js?key=${serverEnv.RESPONSIVE_VOICE_KEY}`} strategy="lazyOnload" />
       <div className="h-full flex flex-col">
         <div className="mb-6">
-          <h1 className="font-zodiak text-4xl font-bold mb-2">AI Coach</h1>
+          <h1 className="font-playfair text-4xl font-bold mb-2">AI Coach</h1>
           <p className="text-text-secondary font-sans text-lg">
             Chat with Vitalis for personalized advice.
           </p>

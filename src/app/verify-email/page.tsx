@@ -54,7 +54,7 @@ function VerifyEmailContent() {
         </svg>
       </div>
       
-      <h2 className="font-zodiak text-3xl font-bold mb-4">Check your email</h2>
+      <h2 className="font-playfair text-3xl font-bold mb-4">Check your email</h2>
       
       <p className="text-text-secondary text-lg font-sans mb-6">
         We sent a confirmation link to <span className="font-medium text-text-primary">{email}</span>. 

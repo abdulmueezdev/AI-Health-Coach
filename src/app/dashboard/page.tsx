@@ -105,7 +105,7 @@ export default function DashboardPage() {
         <div className="w-10 h-10 rounded-full bg-accent-primary flex items-center justify-center text-white">
           <span className="material-symbols-outlined text-sm">Vitalis</span>
         </div>
-        <h3 className="font-zodiak text-lg font-bold">You&apos;re crushing it</h3>
+        <h3 className="font-playfair text-lg font-bold">You&apos;re crushing it</h3>
       </div>
       
       <Card className="bg-white/60 backdrop-blur-sm border-white/40 shadow-sm">
@@ -145,7 +145,7 @@ export default function DashboardPage() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="mb-8 sm:mb-10"
       >
-        <h1 className="font-zodiak text-3xl sm:text-4xl font-bold mb-2">Good Morning, {profile?.display_name || "there"}</h1>
+        <h1 className="font-playfair text-3xl sm:text-4xl font-bold mb-2">Good Morning, {profile?.display_name || "there"}</h1>
         {!loading && !error && !isEmpty && (
           <p className="text-text-secondary font-sans text-base sm:text-lg">
             You&apos;re on track! Your recovery score is <span className="text-status-positive font-bold">88%</span> today.
@@ -180,7 +180,7 @@ export default function DashboardPage() {
                 <Flame className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Calories</h3>
-              <div className="font-comico text-3xl font-bold text-text-primary mb-2">
+              <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
                 <CountUp end={calories} /> <span className="text-base text-text-secondary font-sans font-normal">/ 2400</span>
               </div>
               <div className="text-xs font-medium px-3 py-1 bg-panel-accent/30 text-teal-800 rounded-full mt-auto">
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                 <Target className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Workouts</h3>
-              <div className="font-comico text-3xl font-bold text-text-primary mb-2">
+              <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
                 <CountUp end={workoutsCount} /> <span className="text-base text-text-secondary font-sans font-normal">/ 5 days</span>
               </div>
               <div className="w-full mt-auto pt-4 flex gap-1 h-8 items-end justify-center">
@@ -218,7 +218,7 @@ export default function DashboardPage() {
                 <Trophy className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Weight Progress</h3>
-              <div className="font-comico text-3xl font-bold text-text-primary mb-2">
+              <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
                 -<CountUp end={0} /><span className="font-sans">.0</span> <span className="text-base text-text-secondary font-sans font-normal">lbs</span>
               </div>
               <div className="text-xs font-medium text-status-positive mt-auto flex items-center gap-1">
@@ -237,7 +237,7 @@ export default function DashboardPage() {
         viewport={{ once: true, margin: "-50px" }}
         className="space-y-4"
       >
-        <h2 className="font-zodiak text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Today&apos;s Habits</h2>
+        <h2 className="font-playfair text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Today&apos;s Habits</h2>
         {habitsData.length === 0 ? (
           <p className="text-text-secondary text-sm">No habits created yet. Go to Habits to set one up!</p>
         ) : (

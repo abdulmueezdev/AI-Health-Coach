@@ -127,7 +127,7 @@ export default function HabitsPage() {
 
       <div className="flex justify-between items-end mb-8 mt-4">
         <div>
-          <h1 className="font-zodiak text-4xl font-bold mb-2">Habits</h1>
+          <h1 className="font-playfair text-4xl font-bold mb-2">Habits</h1>
           <p className="text-text-secondary font-sans text-lg">
             Build consistency with daily tracking.
           </p>
@@ -145,7 +145,7 @@ export default function HabitsPage() {
             className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
           >
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-zodiak text-2xl font-bold">New Habit</h2>
+              <h2 className="font-playfair text-2xl font-bold">New Habit</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                 <Plus className="w-5 h-5 rotate-45" />
               </button>
@@ -210,7 +210,7 @@ export default function HabitsPage() {
                     <h3 className="font-bold text-xl mb-1">{habit.name}</h3>
                     <div className="flex items-center gap-2 text-sm">
                       <span className="font-medium text-text-secondary">Current Streak:</span>
-                      <span className="font-comico font-bold text-accent-primary">{habit.streak_count} {habit.streak_count === 1 ? 'day' : 'days'}</span>
+                      <span className="font-fredoka font-bold text-accent-primary">{habit.streak_count} {habit.streak_count === 1 ? 'day' : 'days'}</span>
                     </div>
                   </div>
                   

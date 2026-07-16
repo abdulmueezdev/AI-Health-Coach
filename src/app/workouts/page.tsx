@@ -79,7 +79,7 @@ export default function WorkoutsPage() {
     <DashboardLayout>
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-zodiak text-4xl font-bold mb-2">Workouts</h1>
+          <h1 className="font-playfair text-4xl font-bold mb-2">Workouts</h1>
           <p className="text-text-secondary font-sans text-lg">
             Plan and track your exercise routines.
           </p>
@@ -97,7 +97,7 @@ export default function WorkoutsPage() {
             className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
           >
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-zodiak text-2xl font-bold">New Plan</h2>
+              <h2 className="font-playfair text-2xl font-bold">New Plan</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
               </button>
@@ -156,7 +156,7 @@ export default function WorkoutsPage() {
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/60 text-sm font-bold text-teal-800 mb-6">
                   <Calendar className="w-4 h-4" /> Latest Plan
                 </div>
-                <h2 className="font-zodiak text-3xl font-bold mb-2">{workouts[0]?.type || "Workout"}</h2>
+                <h2 className="font-playfair text-3xl font-bold mb-2">{workouts[0]?.type || "Workout"}</h2>
                 <p className="text-text-secondary mb-8 max-w-md">
                   Estimated time: {workouts[0]?.duration_min || 45} minutes. Intensity: {workouts[0]?.intensity || "Medium"}.
                 </p>
@@ -170,7 +170,7 @@ export default function WorkoutsPage() {
               <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-4">Weekly Goal</h3>
                 <div className="flex items-end gap-2 mb-2">
-                  <span className="font-comico text-4xl font-bold text-accent-primary">3</span>
+                  <span className="font-fredoka text-4xl font-bold text-accent-primary">3</span>
                   <span className="text-text-secondary mb-1">/ 5 days</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2 mb-6">
@@ -189,7 +189,7 @@ export default function WorkoutsPage() {
             </Card>
           </div>
 
-          <h2 className="font-zodiak text-2xl font-bold mb-6">Recent Activity</h2>
+          <h2 className="font-playfair text-2xl font-bold mb-6">Recent Activity</h2>
           
           <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
             {workouts.slice(1).map((workout) => (

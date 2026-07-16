@@ -135,7 +135,7 @@ export default function MealsPage() {
     <DashboardLayout>
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-zodiak text-4xl font-bold mb-2">Meals</h1>
+          <h1 className="font-playfair text-4xl font-bold mb-2">Meals</h1>
           <p className="text-text-secondary font-sans text-lg">
             Track your nutrition and log new meals.
           </p>
@@ -150,7 +150,7 @@ export default function MealsPage() {
           <div className="w-16 h-16 rounded-full bg-accent-primary/10 text-accent-primary flex items-center justify-center mb-4">
             <Camera className="w-8 h-8" />
           </div>
-          <h3 className="font-zodiak text-xl font-bold mb-2">Upload Meal Photo</h3>
+          <h3 className="font-playfair text-xl font-bold mb-2">Upload Meal Photo</h3>
           <p className="text-text-secondary text-sm mb-6 max-w-sm">
             Snap a picture of your food and our AI will estimate the calories and macros automatically.
           </p>
@@ -174,7 +174,7 @@ export default function MealsPage() {
             className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
           >
             <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-sidebar">
-              <h3 className="font-zodiak text-xl font-bold">Log a Meal</h3>
+              <h3 className="font-playfair text-xl font-bold">Log a Meal</h3>
               <button onClick={() => setShowManualLog(false)} className="text-text-secondary hover:text-text-primary p-1">
                 <X className="w-5 h-5" />
               </button>
@@ -224,7 +224,7 @@ export default function MealsPage() {
       )}
 
       <div className="space-y-6">
-        <h2 className="font-zodiak text-2xl font-bold">Recent Meals</h2>
+        <h2 className="font-playfair text-2xl font-bold">Recent Meals</h2>
         
         {loading ? (
           <LoadingSkeleton />

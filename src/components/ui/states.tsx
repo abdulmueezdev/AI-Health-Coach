@@ -13,7 +13,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center p-12 bg-canvas rounded-[24px] border border-white/60 text-center min-h-[300px] w-full">
-      <h3 className="font-zodiak text-2xl font-bold text-brand-primary mb-3">{title}</h3>
+      <h3 className="font-playfair text-2xl font-bold text-brand-primary mb-3">{title}</h3>
       <p className="font-sans text-brand-secondary mb-6 max-w-md mx-auto">{description}</p>
       {actionText && onAction && (
         <button 
@@ -49,7 +49,7 @@ export function ErrorState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center p-8 bg-red-50/50 rounded-[24px] border border-red-100 text-center w-full min-h-[200px]">
-      <h3 className="font-zodiak text-xl font-bold text-red-800 mb-2">Something went wrong</h3>
+      <h3 className="font-playfair text-xl font-bold text-red-800 mb-2">Something went wrong</h3>
       <p className="font-sans text-red-600 mb-6">{message}</p>
       {onRetry && (
         <button 

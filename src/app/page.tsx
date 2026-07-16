@@ -9,10 +9,10 @@ export default function LandingPage() {
     <div className="min-h-screen bg-canvas text-text-primary selection:bg-accent-primary selection:text-white overflow-hidden">
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 backdrop-blur-md bg-canvas/80 border-b border-gray-200/50">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-accent-primary flex items-center justify-center text-white font-bold font-comico">
+          <div className="w-8 h-8 rounded-full bg-accent-primary flex items-center justify-center text-white font-bold font-fredoka">
             V
           </div>
-          <span className="font-zodiak text-xl font-bold">Vitalis</span>
+          <span className="font-playfair text-xl font-bold">Vitalis</span>
         </div>
         <nav className="hidden md:flex items-center gap-8 font-sans text-sm font-medium text-text-secondary">
           <Link href="#features" className="hover:text-text-primary transition-colors">Features</Link>
@@ -40,7 +40,7 @@ export default function LandingPage() {
             <div className="inline-block px-4 py-1.5 rounded-full bg-panel-accent/30 text-text-primary font-medium text-sm mb-6 border border-panel-accent/50">
               Meet your new personal AI fitness coach
             </div>
-            <h1 className="font-zodiak text-5xl md:text-6xl lg:text-7xl leading-tight mb-6">
+            <h1 className="font-playfair text-5xl md:text-6xl lg:text-7xl leading-tight mb-6">
               Wellness is a connection of <span className="text-accent-primary">mind, body, and spirit.</span>
             </h1>
             <p className="font-sans text-lg text-text-secondary mb-8 max-w-xl mx-auto md:mx-0">
@@ -57,12 +57,12 @@ export default function LandingPage() {
             
             <div className="mt-12 flex items-center justify-center md:justify-start gap-8">
               <div className="flex flex-col">
-                <span className="font-comico text-3xl font-bold text-text-primary">10k+</span>
+                <span className="font-fredoka text-3xl font-bold text-text-primary">10k+</span>
                 <span className="text-xs text-text-secondary uppercase tracking-wider font-semibold">Active Users</span>
               </div>
               <div className="w-px h-12 bg-gray-200"></div>
               <div className="flex flex-col">
-                <span className="font-comico text-3xl font-bold text-status-positive">4.9/5</span>
+                <span className="font-fredoka text-3xl font-bold text-status-positive">4.9/5</span>
                 <span className="text-xs text-text-secondary uppercase tracking-wider font-semibold">Average Rating</span>
               </div>
             </div>

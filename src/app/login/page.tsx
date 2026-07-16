@@ -35,10 +35,10 @@ export default function LoginPage() {
         className="w-full max-w-md bg-white rounded-[24px] p-8 shadow-sm border border-gray-100"
       >
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-accent-primary flex items-center justify-center text-white font-bold font-comico mb-4">
+          <div className="w-12 h-12 rounded-full bg-accent-primary flex items-center justify-center text-white font-bold font-fredoka mb-4">
             V
           </div>
-          <h1 className="font-zodiak text-3xl font-bold mb-2">Welcome back</h1>
+          <h1 className="font-playfair text-3xl font-bold mb-2">Welcome back</h1>
           <p className="text-text-secondary font-sans">Enter your details to sign in</p>
         </div>
 

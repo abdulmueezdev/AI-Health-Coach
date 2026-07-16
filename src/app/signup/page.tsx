@@ -50,7 +50,7 @@ export default function SignupPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="font-zodiak text-3xl font-bold mb-4">Check your email</h2>
+          <h2 className="font-playfair text-3xl font-bold mb-4">Check your email</h2>
           <p className="text-text-secondary text-lg font-sans">We&apos;ve sent a confirmation email to your address. Please verify your account to continue.</p>
           <Button asChild className="w-full">
             <Link href="/login">Return to login</Link>
@@ -68,10 +68,10 @@ export default function SignupPage() {
         className="w-full max-w-md bg-white rounded-[24px] p-8 shadow-sm border border-gray-100"
       >
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-accent-primary flex items-center justify-center text-white font-bold font-comico mb-4">
+          <div className="w-12 h-12 rounded-full bg-accent-primary flex items-center justify-center text-white font-bold font-fredoka mb-4">
             V
           </div>
-          <h1 className="font-zodiak text-3xl font-bold mb-2">Create an account</h1>
+          <h1 className="font-playfair text-3xl font-bold mb-2">Create an account</h1>
           <p className="text-text-secondary font-sans">Start your wellness journey today</p>
         </div>
 

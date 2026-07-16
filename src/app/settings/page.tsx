@@ -54,7 +54,7 @@ export default function SettingsPage() {
     <DashboardLayout>
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-zodiak text-4xl font-bold mb-2">Settings</h1>
+          <h1 className="font-playfair text-4xl font-bold mb-2">Settings</h1>
           <p className="text-text-secondary font-sans text-lg">
             Manage your profile, goals, and preferences.
           </p>

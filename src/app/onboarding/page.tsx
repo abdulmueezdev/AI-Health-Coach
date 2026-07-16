@@ -40,14 +40,14 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-canvas text-brand-primary flex items-center justify-center p-4">
       <div className="bg-card-bg rounded-[24px] shadow-sm p-8 max-w-md w-full">
-        <h1 className="font-comico text-3xl mb-6 text-center">Welcome to Vitalis</h1>
+        <h1 className="font-fredoka text-3xl mb-6 text-center">Welcome to Vitalis</h1>
         
         {error && <div className="bg-status-warning/20 text-status-warning p-3 rounded-md mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="font-zodiak text-xl mb-4">Step 1: Your Goal</h2>
+              <h2 className="font-playfair text-xl mb-4">Step 1: Your Goal</h2>
               <div className="space-y-2">
                 {['lose weight', 'maintain', 'gain weight'].map(goal => (
                   <label key={goal} className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-canvas/50">
@@ -69,7 +69,7 @@ export default function OnboardingPage() {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="font-zodiak text-xl mb-4">Step 2: Baseline Stats</h2>
+              <h2 className="font-playfair text-xl mb-4">Step 2: Baseline Stats</h2>
               
               <div>
                 <label className="block text-sm font-medium mb-1 font-sans">Starting Weight (lbs/kg)</label>
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
 
           {step === 3 && (
             <div className="space-y-4">
-              <h2 className="font-zodiak text-xl mb-4">Step 3: Display Name</h2>
+              <h2 className="font-playfair text-xl mb-4">Step 3: Display Name</h2>
               
               <div>
                 <label className="block text-sm font-medium mb-1 font-sans">What should we call you?</label>

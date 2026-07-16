@@ -162,7 +162,7 @@ export default function CoachChat({ userId }: { userId: string }) {
             >
               <div className={`flex gap-3 max-w-[80%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                 <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white
-                  ${msg.role === "user" ? "bg-gray-800" : "bg-accent-primary font-comico"}
+                  ${msg.role === "user" ? "bg-gray-800" : "bg-accent-primary font-fredoka"}
                 `}>
                   {msg.role === "user" ? "U" : "V"}
                 </div>
@@ -219,7 +219,7 @@ export default function CoachChat({ userId }: { userId: string }) {
               className="flex justify-start"
             >
               <div className="flex gap-3 max-w-[80%] flex-row">
-                <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-accent-primary font-comico">
+                <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-accent-primary font-fredoka">
                   V
                 </div>
                 <div className="p-4 rounded-2xl bg-white border border-gray-100 shadow-sm text-text-primary rounded-tl-none flex gap-1 items-center">

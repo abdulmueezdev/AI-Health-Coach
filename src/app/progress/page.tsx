@@ -17,7 +17,7 @@ export default function ProgressPage() {
     <DashboardLayout>
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-zodiak text-4xl font-bold mb-2">Progress</h1>
+          <h1 className="font-playfair text-4xl font-bold mb-2">Progress</h1>
           <p className="text-text-secondary font-sans text-lg">
             Visualize your journey and milestones.
           </p>
@@ -50,7 +50,7 @@ export default function ProgressPage() {
               <div>
                 <h3 className="font-bold text-xl mb-1">Weight Trend</h3>
                 <div className="flex items-center gap-2">
-                  <span className="font-comico text-3xl font-bold text-text-primary">184.2 <span className="text-lg font-sans text-text-secondary">lbs</span></span>
+                  <span className="font-fredoka text-3xl font-bold text-text-primary">184.2 <span className="text-lg font-sans text-text-secondary">lbs</span></span>
                   <span className="flex items-center text-sm font-medium text-status-positive bg-status-positive/10 px-2 py-1 rounded-full">
                     <TrendingDown className="w-4 h-4 mr-1" /> -4.2 lbs
                   </span>
