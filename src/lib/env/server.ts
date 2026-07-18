@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 const serverEnvSchema = z.object({
-  SUPABASE_URL: z.string().url("Must be a valid URL"),
-  SUPABASE_ANON_KEY: z.string().min(1, "Supabase Anon Key is required"),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, "Supabase Service Role Key is required"),
+  SUPABASE_URL: z.string().url("Must be a valid URL").optional(),
+  SUPABASE_ANON_KEY: z.string().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
-  GROQ_API_KEY: z.string().min(1, "Groq API Key is required"),
-  RESPONSIVE_VOICE_KEY: z.string().min(1, "ResponsiveVoice Key is required"),
+  GROQ_API_KEY: z.string().optional(),
+  RESPONSIVE_VOICE_KEY: z.string().optional(),
 });
 
 const isBuild = process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
