@@ -38,7 +38,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
     <div className="flex min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-[var(--accent-primary)] selection:text-white">
       {/* Sidebar: ~80px icon-only nav rail */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[80px] flex-col items-center border-r border-[var(--border-color)] bg-[var(--bg-sidebar)] py-8 sm:flex shadow-sm">
-        <Link href="/dashboard" className="mb-12 flex h-12 w-12 items-center justify-center rounded-full bg-accent-primary text-white font-fredoka font-bold text-xl hover:scale-105 transition-transform">
+        <Link href="/dashboard" prefetch={true} className="mb-12 flex h-12 w-12 items-center justify-center rounded-full bg-accent-primary text-white font-fredoka font-bold text-xl hover:scale-105 transition-transform">
           V
         </Link>
         <nav className="flex flex-1 flex-col items-center gap-6">
@@ -48,6 +48,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
               <Link 
                 key={item.name} 
                 href={item.href}
+                prefetch={true}
                 className={cn(
                   "group relative flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200",
                   isActive ? "bg-[var(--accent-primary)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--bg-panel-accent)]/20 hover:text-[var(--text-primary)]"
@@ -64,6 +65,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
           <ThemeToggle />
           <Link 
             href="/settings"
+            prefetch={true}
             className={cn(
               "flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200",
               pathname === "/settings" ? "bg-[var(--accent-primary)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--bg-panel-accent)]/20 hover:text-[var(--text-primary)]"
@@ -84,6 +86,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
               <Link 
                 key={item.name} 
                 href={item.href}
+                prefetch={true}
                 className={cn(
                   "flex flex-col items-center justify-center p-2 min-w-[72px] min-h-[44px] transition-colors",
                   isActive ? "text-[var(--accent-primary)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"

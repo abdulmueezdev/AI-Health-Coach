@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Plus, Play, Calendar, X } from "lucide-react"
 import { useEffect, useState } from "react"
-import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { LoadingSkeleton } from "@/components/ui/states"
 import { getWorkouts, createWorkout } from "@/server/actions/workouts"
 import { Workout } from "@/types/database"
 
@@ -20,6 +20,14 @@ export default function WorkoutsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newType, setNewType] = useState("")
   const [newDuration, setNewDuration] = useState("")
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const last7DaysWorkouts = workouts.filter(w => new Date(w.date) >= sevenDaysAgo)
+  const uniqueDaysCount = new Set(last7DaysWorkouts.map(w => new Date(w.date).toDateString())).size
+  const weeklyProgress = Math.min(uniqueDaysCount, 5)
+
+  const todayStr = new Date().toDateString()
+  const hasWorkoutToday = workouts.some(w => new Date(w.date).toDateString() === todayStr)
 
   async function loadWorkouts() {
     const res = await getWorkouts()
@@ -38,6 +46,13 @@ export default function WorkoutsPage() {
   const handleCreatePlan = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newType || !newDuration) return
+    
+    if (hasWorkoutToday) {
+      alert("You already logged a workout today.")
+      setShowModal(false)
+      return
+    }
+
     setIsSubmitting(true)
     try {
       const res = await createWorkout({
@@ -140,14 +155,27 @@ export default function WorkoutsPage() {
       {loading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <ErrorState message={error} onRetry={() => window.location.reload()} />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-2">Failed to load data</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm"
+          >
+            Retry
+          </button>
+        </div>
       ) : workouts.length === 0 ? (
-        <EmptyState 
-          title="No workouts planned" 
-          description="Create your first workout plan to start tracking your exercise journey."
-          actionText="Create Plan"
-          onAction={() => setShowModal(true)}
-        />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-4">
+            No workouts yet
+          </p>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-full inline-block"
+          >
+            Create Workout
+          </button>
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
@@ -162,6 +190,10 @@ export default function WorkoutsPage() {
                   Estimated time: {workouts[0]?.duration_min || 45} minutes. Intensity: {workouts[0]?.intensity || "Medium"}.
                 </p>
                 <Button className="gap-2 px-8" onClick={async () => {
+                  if (hasWorkoutToday) {
+                    alert("You already logged a workout today.")
+                    return
+                  }
                   if (workouts.length > 0) {
                     setIsSubmitting(true)
                     try {
@@ -191,7 +223,7 @@ export default function WorkoutsPage() {
                 <h3 className="font-bold text-lg mb-4">Weekly Goal</h3>
                 <div className="flex items-end gap-2 mb-2">
                   <span className="font-fredoka text-4xl font-bold text-accent-primary">
-                    {workouts.filter(w => new Date(w.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
+                    {weeklyProgress}
                   </span>
                   <span className="text-text-secondary mb-1">/ 5 days</span>
                 </div>

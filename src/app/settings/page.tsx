@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LogOut, Save } from "lucide-react"
 import { signOut } from "@/server/actions/auth"
-import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { LoadingSkeleton } from "@/components/ui/states"
 import { useUser } from "@/lib/hooks/useUser"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme/ThemeToggle"
@@ -66,14 +66,27 @@ export default function SettingsPage() {
       {authLoading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <ErrorState message={error} onRetry={() => router.refresh()} />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-2">Failed to load data</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm"
+          >
+            Retry
+          </button>
+        </div>
       ) : isEmpty ? (
-        <EmptyState 
-          title="No settings available" 
-          description="We couldn't load your settings profile."
-          actionText="Refresh"
-          onAction={() => router.refresh()}
-        />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-4">
+            No settings available
+          </p>
+          <button 
+            onClick={() => router.refresh()}
+            className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-full inline-block"
+          >
+            Refresh
+          </button>
+        </div>
       ) : (
         <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 max-w-3xl">
           <motion.div variants={item}>

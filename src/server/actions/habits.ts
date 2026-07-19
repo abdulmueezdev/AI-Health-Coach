@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { Habit, HabitLog } from '@/types/database'
+import { Habit } from '@/types/database'
 
 export type TypedActionResponse<T> = {
   success: boolean
@@ -56,37 +56,54 @@ export async function deleteHabit(id: string): Promise<TypedActionResponse<void>
   return { success: true }
 }
 
-export async function logHabitCompletion(habitId: string): Promise<TypedActionResponse<HabitLog>> {
+export async function logHabitCompletion(habitId: string): Promise<TypedActionResponse<{ status: string, streak: number }>> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
-  const completed_at = new Date().toISOString()
-  const { data: habitLog, error: logError } = await supabase.from('habit_logs').insert({
-    habit_id: habitId,
-    user_id: user.id,
-    completed_at
-  }).select().single()
+  const today = new Date().toISOString().split('T')[0]
 
-  if (logError) return { success: false, error: logError.message }
-
-  const { data: currentHabit } = await supabase
-    .from('habits')
-    .select('streak_count')
-    .eq('id', habitId)
+  const { data: existing } = await supabase
+    .from('habit_logs')
+    .select('id')
+    .eq('habit_id', habitId)
     .eq('user_id', user.id)
+    .gte('completed_at', today + 'T00:00:00')
+    .lte('completed_at', today + 'T23:59:59')
     .single()
 
-  const currentStreak = currentHabit?.streak_count || 0
+  if (existing) {
+    await supabase.from('habit_logs').delete().eq('id', existing.id)
 
-  await supabase
-    .from('habits')
-    .update({
-      streak_count: currentStreak + 1,
-      last_completed_at: completed_at
-    })
-    .eq('id', habitId)
-    .eq('user_id', user.id)
+    const { data: habit } = await supabase.from('habits').select('streak_count').eq('id', habitId).single()
+    const newStreak = Math.max(0, (habit?.streak_count || 1) - 1)
 
-  return { success: true, data: habitLog as HabitLog }
+    await supabase.from('habits').update({
+      streak_count: newStreak,
+      last_completed_at: null
+    }).eq('id', habitId)
+
+    return { success: true, data: { status: 'removed', streak: newStreak } }
+  }
+
+  const { data: habit } = await supabase.from('habits').select('streak_count, last_completed_at').eq('id', habitId).single()
+
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  const wasYesterday = habit?.last_completed_at?.startsWith(yesterday.toISOString().split('T')[0])
+
+  const newStreak = wasYesterday ? ((habit?.streak_count || 0) + 1) : 1
+
+  await supabase.from('habits').update({
+    streak_count: newStreak,
+    last_completed_at: new Date().toISOString()
+  }).eq('id', habitId)
+
+  await supabase.from('habit_logs').insert({
+    habit_id: habitId,
+    user_id: user.id,
+    completed_at: new Date().toISOString()
+  })
+
+  return { success: true, data: { status: 'added', streak: newStreak } }
 }

@@ -77,25 +77,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl)
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .single()
 
-      const hasProfile = !!profile
-
-      if (hasProfile && currentPath.startsWith('/onboarding')) {
-        const dashboardUrl = request.nextUrl.clone()
-        dashboardUrl.pathname = '/dashboard'
-        return NextResponse.redirect(dashboardUrl)
-      }
-
-      if (!hasProfile && !currentPath.startsWith('/onboarding')) {
-        const onboardingUrl = request.nextUrl.clone()
-        onboardingUrl.pathname = '/onboarding'
-        return NextResponse.redirect(onboardingUrl)
-      }
     }
 
     return supabaseResponse

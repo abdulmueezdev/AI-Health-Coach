@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { LoadingSkeleton } from "@/components/ui/states"
 import { getHabits, logHabitCompletion, createHabit } from "@/server/actions/habits"
 import { Habit } from "@/types/database"
 
@@ -77,22 +77,39 @@ export default function HabitsPage() {
 
 
   const toggleHabit = async (id: string) => {
-    // Save previous state for revert
+    const today = new Date().toISOString().split('T')[0]
     const previousHabits = [...habits]
     
     // Optimistic UI update
     setHabits(habits.map(h => {
       if (h.id === id) {
-        return { ...h, last_completed_at: new Date().toISOString(), streak_count: h.streak_count + 1 }
+        const completedToday = h.last_completed_at?.startsWith(today)
+        if (completedToday) {
+          return { ...h, last_completed_at: null, streak_count: Math.max(0, h.streak_count - 1) }
+        } else {
+          return { ...h, last_completed_at: new Date().toISOString(), streak_count: h.streak_count + 1 }
+        }
       }
       return h
     }))
     
     // Background sync
     const res = await logHabitCompletion(id)
-    if (!res.success) {
+    if (!res.success || !res.data) {
       setHabits(previousHabits)
       showToast(res.error || "Failed to log habit completion")
+    } else {
+      // Sync perfectly with backend truth
+      setHabits(current => current.map(h => {
+        if (h.id === id) {
+          return { 
+            ...h, 
+            streak_count: res.data!.streak, 
+            last_completed_at: res.data!.status === 'added' ? new Date().toISOString() : null 
+          }
+        }
+        return h
+      }))
     }
   }
 
@@ -188,14 +205,27 @@ export default function HabitsPage() {
       {loading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <ErrorState message={error} onRetry={() => window.location.reload()} />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-2">Failed to load data</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm"
+          >
+            Retry
+          </button>
+        </div>
       ) : habits.length === 0 ? (
-        <EmptyState 
-          title="No habits tracked" 
-          description="Build consistency by tracking your daily goals. Add your first habit to begin."
-          actionText="Add Habit"
-          onAction={() => setShowModal(true)}
-        />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-4">
+            No habits tracked
+          </p>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-full inline-block"
+          >
+            Add Habit
+          </button>
+        </div>
       ) : (
         <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {habits.map((habit, index) => {

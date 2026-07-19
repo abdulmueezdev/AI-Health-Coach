@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from "react"
 import { motion, Variants } from "framer-motion"
 import { useUser } from "@/lib/hooks/useUser"
+import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Flame, Target, Trophy, ArrowUpRight } from "lucide-react"
@@ -70,7 +71,12 @@ export default function DashboardPage() {
 
         const totalCals = meals.reduce((sum, m) => sum + (m.calories_estimate || 0), 0)
         setCalories(totalCals)
-        setWorkoutsCount(workouts.length)
+        
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        const last7DaysWorkouts = workouts.filter(w => new Date(w.date) >= sevenDaysAgo)
+        const uniqueDaysCount = new Set(last7DaysWorkouts.map(w => new Date(w.date).toDateString())).size
+        setWorkoutsCount(Math.min(uniqueDaysCount, 5))
+
         setHabitsData(habits.map(h => {
           const today = new Date().toISOString().split('T')[0]
           const completedToday = h.last_completed_at ? h.last_completed_at.startsWith(today) : false
@@ -119,19 +125,23 @@ export default function DashboardPage() {
       <div className="space-y-3">
         <h4 className="font-sans text-sm font-bold text-text-secondary uppercase tracking-wider mt-8 mb-4">Recommended Actions</h4>
         {[
-          "Extend fast by 30m",
-          "15m Outdoor walk",
-          "Deep breathing session"
+          { text: "Extend fast by 30m", href: "/meals" },
+          { text: "15m Outdoor walk", href: "/workouts" },
+          { text: "Deep breathing session", href: "/habits" }
         ].map((action, i) => (
           <motion.div 
             key={i}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 + (i * 0.1) }}
-            className="flex items-center justify-between p-4 bg-[var(--bg-sidebar)] hover:bg-[var(--bg-panel-accent)]/20 border border-[var(--border-color)] rounded-xl cursor-pointer transition-all group"
           >
-            <span className="font-medium text-sm">{action}</span>
-            <ArrowUpRight className="w-4 h-4 text-text-secondary group-hover:text-accent-primary transition-colors" />
+            <Link 
+              href={action.href}
+              className="flex items-center justify-between p-4 bg-[var(--bg-sidebar)] hover:bg-[var(--bg-panel-accent)]/20 border border-[var(--border-color)] rounded-xl cursor-pointer transition-all group"
+            >
+              <span className="font-medium text-sm">{action.text}</span>
+              <ArrowUpRight className="w-4 h-4 text-text-secondary group-hover:text-accent-primary transition-colors" />
+            </Link>
           </motion.div>
         ))}
       </div>

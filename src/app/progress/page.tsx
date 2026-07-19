@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, TrendingDown, TrendingUp } from "lucide-react"
 import { useState, useEffect } from "react"
-import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { LoadingSkeleton } from "@/components/ui/states"
 import { getSnapshots, createSnapshot } from "@/server/actions/progress"
 import { ProgressSnapshot } from "@/types/database"
 import { Input } from "@/components/ui/input"
@@ -112,14 +112,27 @@ export default function ProgressPage() {
       {loading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <ErrorState message={error} onRetry={() => window.location.reload()} />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-2">Failed to load data</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm"
+          >
+            Retry
+          </button>
+        </div>
       ) : isEmpty ? (
-        <EmptyState 
-          title="No progress data" 
-          description="Log your weight to start visualizing your journey and milestones."
-          actionText="Log Weight"
-          onAction={() => setShowModal(true)}
-        />
+        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] mb-4">
+            No progress data
+          </p>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-full inline-block"
+          >
+            Log Weight
+          </button>
+        </div>
       ) : (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -229,10 +242,21 @@ export default function ProgressPage() {
                 />
               </div>
               <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
-                <Button onClick={handleLogWeight} disabled={isSubmitting || !weightInput}>
-                  {isSubmitting ? "Saving..." : "Save Log"}
-                </Button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-6 py-2 rounded-full bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-panel-accent)]/20 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting || !weightInput}
+                  onClick={handleLogWeight}
+                  className="px-6 py-2 rounded-full bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Log'}
+                </button>
               </div>
             </div>
           </div>
