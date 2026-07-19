@@ -9,8 +9,20 @@ export interface ButtonProps
   variant?: "default" | "outline" | "ghost"
 }
 
+const getVariantClasses = (variant: "default" | "outline" | "ghost" = "default") => {
+  switch (variant) {
+    case "outline":
+      return "bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-gray-50 dark:hover:bg-[var(--bg-panel-accent)]/10"
+    case "ghost":
+      return "bg-transparent text-[var(--text-primary)] hover:bg-gray-50 dark:hover:bg-[var(--bg-panel-accent)]/10"
+    case "default":
+    default:
+      return "bg-accent-primary text-white hover:bg-accent-primary/90"
+  }
+}
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, asChild = false, ...props }, ref) => {
+  ({ className, variant = "default", asChild = false, ...props }, ref) => {
     const shouldReduceMotion = useReducedMotion()
     
     if (asChild) {
@@ -18,7 +30,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         <Slot
           className={cn(
             "inline-flex items-center justify-center whitespace-nowrap rounded-full font-sans font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary disabled:pointer-events-none disabled:opacity-50",
-            "bg-accent-primary text-white hover:bg-accent-primary/90 h-12 px-8 py-2",
+            "h-12 px-8 py-2",
+            getVariantClasses(variant),
             className
           )}
           ref={ref}
@@ -32,7 +45,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
         className={cn(
           "inline-flex items-center justify-center whitespace-nowrap rounded-full font-sans font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary disabled:pointer-events-none disabled:opacity-50",
-          "bg-accent-primary text-white hover:bg-accent-primary/90 h-12 px-8 py-2",
+          "h-12 px-8 py-2",
+          getVariantClasses(variant),
           className
         )}
         ref={ref}
