@@ -7,7 +7,7 @@ import { useUser } from "@/lib/hooks/useUser"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
-import { Flame, Target, Trophy, ArrowUpRight } from "lucide-react"
+import { Flame, Target, Trophy, ArrowUpRight, ArrowRight } from "lucide-react"
 import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
 import { getMeals } from "@/server/actions/meals"
 import { getWorkouts } from "@/server/actions/workouts"
@@ -137,10 +137,11 @@ export default function DashboardPage() {
           >
             <Link 
               href={action.href}
-              className="flex items-center justify-between p-4 bg-[var(--bg-sidebar)] hover:bg-[var(--bg-panel-accent)]/20 border border-[var(--border-color)] rounded-xl cursor-pointer transition-all group"
+              prefetch={true}
+              className="flex items-center justify-between p-4 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-primary)] transition-colors group"
             >
-              <span className="font-medium text-sm">{action.text}</span>
-              <ArrowUpRight className="w-4 h-4 text-text-secondary group-hover:text-accent-primary transition-colors" />
+              <span className="text-[var(--text-primary)]">{action.text}</span>
+              <ArrowRight className="w-4 h-4 text-[var(--accent-primary)] group-hover:translate-x-1 transition-transform" />
             </Link>
           </motion.div>
         ))}

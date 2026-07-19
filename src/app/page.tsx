@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { Camera, Dumbbell, MessageSquare, CheckCircle, CheckSquare, Bot, Volume2, Smartphone } from "lucide-react"
 
 export default function LandingPage() {
   return (
@@ -17,7 +18,6 @@ export default function LandingPage() {
         <nav className="hidden md:flex items-center gap-8 font-sans text-sm font-medium text-[var(--text-secondary)]">
           <Link href="#features" className="hover:text-[var(--text-primary)] transition-colors">Features</Link>
           <Link href="#how-it-works" className="hover:text-[var(--text-primary)] transition-colors">How it Works</Link>
-          <Link href="#pricing" className="hover:text-[var(--text-primary)] transition-colors">Pricing</Link>
         </nav>
         <div className="flex items-center gap-4">
           <Link href="/login" className="font-sans text-sm font-medium hover:text-[var(--accent-primary)] transition-colors">
@@ -30,7 +30,8 @@ export default function LandingPage() {
       </header>
 
       <main className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-24">
+        {/* HERO SECTION */}
+        <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-24 mb-32">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -49,9 +50,6 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
               <Button asChild className="w-full sm:w-auto h-14 px-10 text-lg">
                 <Link href="/signup">Start Your Journey</Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full sm:w-auto h-14 px-10 text-lg bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--border-color)] hover:bg-[var(--bg-panel-accent)]/20">
-                <Link href="#features">Watch Demo</Link>
               </Button>
             </div>
             
@@ -76,7 +74,6 @@ export default function LandingPage() {
           >
             <div className="aspect-[4/5] bg-[var(--bg-sidebar)] rounded-[32px] shadow-2xl overflow-hidden border border-[var(--border-color)] relative z-10">
               <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-panel-accent)]/10 to-[var(--bg-canvas)]/50"></div>
-              {/* Dashboard Preview Mockup */}
               <div className="p-8 h-full flex flex-col">
                 <div className="flex items-center justify-between mb-8">
                   <div className="w-10 h-10 rounded-full bg-[var(--accent-primary)]/20"></div>
@@ -99,12 +96,95 @@ export default function LandingPage() {
               </div>
             </div>
             
-            {/* Decorative background blobs */}
             <div className="absolute -top-12 -right-12 w-64 h-64 bg-[var(--accent-primary)]/10 rounded-full blur-3xl -z-10"></div>
             <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-[var(--bg-panel-accent)]/20 rounded-full blur-3xl -z-10"></div>
           </motion.div>
         </div>
+
+        {/* HOW IT WORKS SECTION */}
+        <motion.section 
+          id="how-it-works"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="mb-32"
+        >
+          <div className="text-center mb-16">
+            <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">How It Works</h2>
+            <p className="font-sans text-lg text-[var(--text-secondary)]">Four simple steps to a healthier you.</p>
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-start justify-between gap-8 relative">
+            <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent -z-10"></div>
+            
+            {[
+              { icon: Camera, title: "Snap a photo", desc: "Log meals instantly with AI photo analysis" },
+              { icon: Dumbbell, title: "Log your workout", desc: "Track routines, sets, reps, and progress" },
+              { icon: MessageSquare, title: "Chat with your coach", desc: "Get personalized advice from your AI coach" },
+              { icon: CheckCircle, title: "Build your streak", desc: "Daily habits that keep you accountable" }
+            ].map((step, idx) => (
+              <div key={idx} className="flex-1 flex flex-col items-center text-center">
+                <div className="w-24 h-24 rounded-2xl bg-[var(--bg-panel-accent)]/20 border border-[var(--border-color)] flex items-center justify-center mb-6 shadow-sm">
+                  <step.icon size={48} className="text-[var(--accent-primary)]" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-fredoka text-xl font-bold text-[var(--text-primary)] mb-2">{step.title}</h3>
+                <p className="text-sm text-[var(--text-secondary)]">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* FEATURES SECTION */}
+        <motion.section 
+          id="features"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="mb-20"
+        >
+          <div className="text-center mb-16">
+            <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">Features</h2>
+            <p className="font-sans text-lg text-[var(--text-secondary)]">Everything you need to succeed.</p>
+          </div>
+
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.1 } }
+            }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {[
+              { icon: Camera, title: "Meal Photo Analysis", desc: "Snap a photo, get instant calorie & macro estimates" },
+              { icon: Dumbbell, title: "Workout Planning", desc: "Track routines, sets, reps, and progress over time" },
+              { icon: CheckSquare, title: "Habit Tracking", desc: "Daily habits with streaks that keep you accountable" },
+              { icon: Bot, title: "AI Coach", desc: "Personalized coaching that remembers your history" },
+              { icon: Volume2, title: "Voice Playback", desc: "Listen to your coach while you get ready" },
+              { icon: Smartphone, title: "Mobile First", desc: "Designed for your phone, works on any device" }
+            ].map((feature, idx) => (
+              <motion.div 
+                key={idx}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+                transition={{ duration: 0.5 }}
+                className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[24px] p-6 shadow-sm hover:border-[var(--accent-primary)] hover:shadow-md transition-all duration-300"
+              >
+                <feature.icon size={40} className="text-[var(--accent-primary)] mb-6" strokeWidth={1.5} />
+                <h3 className="font-fredoka text-lg font-bold text-[var(--text-primary)] mb-2">{feature.title}</h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.section>
       </main>
     </div>
   )
 }
+
