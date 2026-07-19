@@ -46,7 +46,7 @@ function VerifyEmailContent() {
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-md bg-white rounded-[24px] p-8 shadow-sm border border-gray-100 text-center"
+      className="w-full max-w-md bg-[var(--card-bg)] rounded-[24px] p-8 shadow-sm border border-[var(--border-color)] text-center"
     >
       <div className="w-16 h-16 rounded-full bg-accent-primary/10 text-accent-primary flex items-center justify-center mx-auto mb-6">
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -66,7 +66,7 @@ function VerifyEmailContent() {
           <Link href="/login">Return to login</Link>
         </Button>
         
-        <div className="pt-4 border-t border-gray-100">
+        <div className="pt-4 border-t border-[var(--border-color)]">
           <p className="text-sm text-text-secondary mb-2">Didn&apos;t receive the email?</p>
           <Button 
             variant="ghost" 
@@ -90,8 +90,8 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen bg-canvas flex items-center justify-center p-6 text-text-primary selection:bg-accent-primary selection:text-white">
       <Suspense fallback={
-        <div className="w-full max-w-md bg-white rounded-[24px] p-8 shadow-sm border border-gray-100 text-center flex justify-center items-center h-64">
-          <div className="w-8 h-8 border-4 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-full max-w-md bg-[var(--card-bg)] rounded-[24px] p-8 shadow-sm border border-[var(--border-color)] text-center flex justify-center items-center h-64">
+          <div className="w-8 h-8 border-4 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin"></div>
         </div>
       }>
         <VerifyEmailContent />

@@ -32,7 +32,7 @@ export default function LoginPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white rounded-[24px] p-8 shadow-sm border border-gray-100"
+        className="w-full max-w-md bg-[var(--card-bg)] rounded-[24px] p-8 shadow-sm border border-[var(--border-color)]"
       >
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 rounded-full bg-accent-primary flex items-center justify-center text-white font-bold font-fredoka mb-4">

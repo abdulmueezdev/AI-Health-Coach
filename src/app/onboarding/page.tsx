@@ -39,9 +39,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas text-brand-primary flex items-center justify-center p-4">
-      <div className="bg-card-bg rounded-[24px] shadow-sm p-8 max-w-md w-full">
-        <h1 className="font-fredoka text-3xl mb-6 text-center">Welcome to Vitalis</h1>
+    <div className="min-h-screen bg-canvas text-text-primary flex items-center justify-center p-4">
+      <div className="bg-[var(--card-bg)] rounded-[24px] shadow-sm p-8 max-w-md w-full border border-[var(--border-color)]">
+        <h1 className="font-fredoka text-3xl mb-6 text-center text-[var(--text-primary)]">Welcome to Vitalis</h1>
         
         {error && <div className="bg-status-warning/20 text-status-warning p-3 rounded-md mb-4">{error}</div>}
 
@@ -51,7 +51,7 @@ export default function OnboardingPage() {
               <h2 className="font-playfair text-xl mb-4">Step 1: Your Goal</h2>
               <div className="space-y-2">
                 {['lose weight', 'maintain', 'gain weight'].map(goal => (
-                  <label key={goal} className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-canvas/50">
+                  <label key={goal} className="flex items-center space-x-3 p-3 border border-[var(--border-color)] rounded-lg cursor-pointer hover:bg-[var(--bg-panel-accent)]/10">
                     <input 
                       type="radio" 
                       name="goal" 
@@ -73,23 +73,23 @@ export default function OnboardingPage() {
               <h2 className="font-playfair text-xl mb-4">Step 2: Baseline Stats</h2>
               
               <div>
-                <label className="block text-sm font-medium mb-1 font-sans">Starting Weight (lbs/kg)</label>
-                <input type="number" required value={startingWeight} onChange={e => setStartingWeight(e.target.value)} className="w-full p-3 border rounded-lg" />
+                <label className="block text-sm font-medium mb-1 font-sans text-[var(--text-secondary)]">Starting Weight (lbs/kg)</label>
+                <input type="number" required value={startingWeight} onChange={e => setStartingWeight(e.target.value)} className="w-full p-3 border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1 font-sans">Target Weight (lbs/kg)</label>
-                <input type="number" required value={targetWeight} onChange={e => setTargetWeight(e.target.value)} className="w-full p-3 border rounded-lg" />
+                <label className="block text-sm font-medium mb-1 font-sans text-[var(--text-secondary)]">Target Weight (lbs/kg)</label>
+                <input type="number" required value={targetWeight} onChange={e => setTargetWeight(e.target.value)} className="w-full p-3 border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1 font-sans">Height (cm/in)</label>
-                <input type="number" required value={height} onChange={e => setHeight(e.target.value)} className="w-full p-3 border rounded-lg" />
+                <label className="block text-sm font-medium mb-1 font-sans text-[var(--text-secondary)]">Height (cm/in)</label>
+                <input type="number" required value={height} onChange={e => setHeight(e.target.value)} className="w-full p-3 border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1 font-sans">Activity Level</label>
-                <select value={activityLevel} onChange={e => setActivityLevel(e.target.value)} className="w-full p-3 border rounded-lg">
+                <label className="block text-sm font-medium mb-1 font-sans text-[var(--text-secondary)]">Activity Level</label>
+                <select value={activityLevel} onChange={e => setActivityLevel(e.target.value)} className="w-full p-3 border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary">
                   <option value="sedentary">Sedentary</option>
                   <option value="light">Lightly Active</option>
                   <option value="moderate">Moderately Active</option>
@@ -98,7 +98,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="flex space-x-3 mt-6">
-                <button type="button" onClick={handleBack} className="w-1/3 border border-gray-300 py-3 rounded-full font-sans">Back</button>
+                <button type="button" onClick={handleBack} className="w-1/3 border border-[var(--border-color)] py-3 rounded-full font-sans text-[var(--text-primary)] hover:bg-[var(--bg-panel-accent)]/10">Back</button>
                 <button type="button" onClick={handleNext} className="w-2/3 bg-accent-primary text-white py-3 rounded-full font-sans font-medium">Next</button>
               </div>
             </div>
@@ -109,12 +109,12 @@ export default function OnboardingPage() {
               <h2 className="font-playfair text-xl mb-4">Step 3: Display Name</h2>
               
               <div>
-                <label className="block text-sm font-medium mb-1 font-sans">What should we call you?</label>
-                <input type="text" required value={displayName} onChange={e => setDisplayName(e.target.value)} className="w-full p-3 border rounded-lg" placeholder="Your name" />
+                <label className="block text-sm font-medium mb-1 font-sans text-[var(--text-secondary)]">What should we call you?</label>
+                <input type="text" required value={displayName} onChange={e => setDisplayName(e.target.value)} className="w-full p-3 border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" placeholder="Your name" />
               </div>
 
               <div className="flex space-x-3 mt-6">
-                <button type="button" onClick={handleBack} className="w-1/3 border border-gray-300 py-3 rounded-full font-sans">Back</button>
+                <button type="button" onClick={handleBack} className="w-1/3 border border-[var(--border-color)] py-3 rounded-full font-sans text-[var(--text-primary)] hover:bg-[var(--bg-panel-accent)]/10">Back</button>
                 <button type="submit" disabled={loading} className="w-2/3 bg-accent-primary text-white py-3 rounded-full font-sans font-medium disabled:opacity-50">
                   {loading ? 'Saving...' : 'Complete'}
                 </button>
