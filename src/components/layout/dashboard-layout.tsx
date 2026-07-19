@@ -35,9 +35,9 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
   const pathname = usePathname()
 
   return (
-    <div className="flex min-h-screen bg-canvas text-text-primary selection:bg-accent-primary selection:text-white">
+    <div className="flex min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-[var(--accent-primary)] selection:text-white">
       {/* Sidebar: ~80px icon-only nav rail */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[80px] flex-col items-center border-r border-gray-200/50 bg-sidebar py-8 sm:flex shadow-sm">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[80px] flex-col items-center border-r border-[var(--border-color)] bg-[var(--bg-sidebar)] py-8 sm:flex shadow-sm">
         <Link href="/dashboard" className="mb-12 flex h-12 w-12 items-center justify-center rounded-full bg-accent-primary text-white font-fredoka font-bold text-xl hover:scale-105 transition-transform">
           V
         </Link>
@@ -50,7 +50,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
                 href={item.href}
                 className={cn(
                   "group relative flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200",
-                  isActive ? "bg-accent-primary text-white shadow-md" : "text-text-secondary hover:bg-gray-100 hover:text-text-primary"
+                  isActive ? "bg-[var(--accent-primary)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--bg-panel-accent)]/20 hover:text-[var(--text-primary)]"
                 )}
                 title={item.name}
               >
@@ -66,7 +66,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
             href="/settings"
             className={cn(
               "flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200",
-              pathname === "/settings" ? "bg-accent-primary text-white shadow-md" : "text-text-secondary hover:bg-gray-100 hover:text-text-primary"
+              pathname === "/settings" ? "bg-[var(--accent-primary)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--bg-panel-accent)]/20 hover:text-[var(--text-primary)]"
             )}
             title="Settings"
           >
@@ -76,7 +76,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
       </aside>
 
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center overflow-x-auto hide-scrollbar border-t border-gray-200 bg-sidebar sm:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center overflow-x-auto hide-scrollbar border-t border-[var(--border-color)] bg-[var(--bg-sidebar)] sm:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <div className="flex w-full min-w-max px-2 items-center">
           {[...navItems, { name: "Settings", href: "/settings", icon: Settings }].map((item) => {
             const isActive = pathname === item.href
@@ -86,7 +86,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center justify-center p-2 min-w-[72px] min-h-[44px] transition-colors",
-                  isActive ? "text-accent-primary" : "text-text-secondary hover:text-text-primary"
+                  isActive ? "text-[var(--accent-primary)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 )}
               >
                 <item.icon className="h-5 w-5 mb-1" strokeWidth={isActive ? 2.5 : 2} />
@@ -111,7 +111,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
           {/* Mobile Insight Panel Accordion */}
           {insightPanel && (
             <div className="mt-8 block lg:hidden">
-              <details className="group rounded-2xl bg-panel-accent/30 border border-panel-accent/20 backdrop-blur-sm overflow-hidden mb-8">
+              <details className="group rounded-2xl bg-[var(--bg-panel-accent)]/10 border border-[var(--border-color)] backdrop-blur-sm overflow-hidden mb-8">
                 <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-playfair text-lg font-bold outline-none">
                   <span>AI Insights & Details</span>
                   <span className="transition group-open:rotate-180">
@@ -129,7 +129,7 @@ export function DashboardLayout({ children, insightPanel }: DashboardLayoutProps
 
       {/* Insight Panel: ~360px, tinted #C3DEDD */}
       {insightPanel && (
-        <aside className="fixed inset-y-0 right-0 z-30 hidden w-[360px] flex-col border-l border-panel-accent/20 bg-panel-accent/30 lg:flex backdrop-blur-sm">
+        <aside className="fixed inset-y-0 right-0 z-30 hidden w-[360px] flex-col border-l border-[var(--border-color)] bg-[var(--bg-panel-accent)]/10 lg:flex backdrop-blur-sm">
           <div className="h-full overflow-y-auto p-6">
             {insightPanel}
           </div>
