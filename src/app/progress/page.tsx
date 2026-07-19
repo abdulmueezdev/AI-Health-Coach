@@ -5,14 +5,95 @@ import { motion } from "framer-motion"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, TrendingDown } from "lucide-react"
-import { useState } from "react"
+import { Plus, TrendingDown, TrendingUp } from "lucide-react"
+import { useState, useEffect } from "react"
 import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { getSnapshots, createSnapshot } from "@/server/actions/progress"
+import { ProgressSnapshot } from "@/types/database"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function ProgressPage() {
-  const [loading] = useState(false)
-  const [error] = useState<string | null>(null)
-  const [isEmpty] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [snapshots, setSnapshots] = useState<ProgressSnapshot[]>([])
+  const [timeRange, setTimeRange] = useState<'1W' | '1M' | '3M'>('1M')
+  const [showModal, setShowModal] = useState(false)
+
+  const [weightInput, setWeightInput] = useState('')
+  const [bodyFatInput, setBodyFatInput] = useState('')
+  const [notesInput, setNotesInput] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function loadData() {
+    setLoading(true)
+    const res = await getSnapshots()
+    if (res.success && res.data) {
+      setSnapshots(res.data)
+    } else {
+      setError(res.error || 'Failed to load snapshots')
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const now = new Date()
+  const filterDate = new Date()
+  if (timeRange === '1W') filterDate.setDate(now.getDate() - 7)
+  if (timeRange === '1M') filterDate.setMonth(now.getMonth() - 1)
+  if (timeRange === '3M') filterDate.setMonth(now.getMonth() - 3)
+
+  // snapshots are sorted descending from DB, so we reverse for charting to get chronological order
+  const filtered = snapshots
+    .filter(s => new Date(s.date) >= filterDate && s.weight !== null)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  const isEmpty = snapshots.length === 0
+
+  const latestWeight = filtered.length > 0 ? (filtered[filtered.length - 1].weight || 0) : 0
+  const oldestWeight = filtered.length > 0 ? (filtered[0].weight || latestWeight) : latestWeight
+  const diff = latestWeight - oldestWeight
+  const isDown = diff <= 0
+
+  let pathD = ""
+  let minWeight = 0
+  let maxWeight = 0
+  
+  if (filtered.length > 0) {
+    minWeight = Math.min(...filtered.map(s => s.weight || 0))
+    maxWeight = Math.max(...filtered.map(s => s.weight || 0))
+    const range = maxWeight - minWeight || 1 // avoid div by 0
+    
+    pathD = filtered.map((s, i) => {
+      const x = filtered.length === 1 ? 50 : (i / (filtered.length - 1)) * 100
+      const normalizedWeight = ((s.weight || 0) - minWeight) / range
+      const y = 90 - (normalizedWeight * 80) // map to 10-90 Y range
+      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+    }).join(" ")
+  }
+
+  const handleLogWeight = async () => {
+    if (!weightInput) return
+    setIsSubmitting(true)
+    const res = await createSnapshot({
+      weight: parseFloat(weightInput),
+      body_stat: bodyFatInput ? { body_fat_percentage: parseFloat(bodyFatInput), notes: notesInput } : { notes: notesInput },
+      date: new Date().toISOString()
+    })
+    setIsSubmitting(false)
+    if (res.success) {
+      setShowModal(false)
+      setWeightInput('')
+      setBodyFatInput('')
+      setNotesInput('')
+      loadData()
+    } else {
+      alert(res.error)
+    }
+  }
 
   return (
     <DashboardLayout>
@@ -23,7 +104,7 @@ export default function ProgressPage() {
             Visualize your journey and milestones.
           </p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setShowModal(true)}>
           <Plus className="w-4 h-4" /> Log Weight
         </Button>
       </div>
@@ -37,7 +118,7 @@ export default function ProgressPage() {
           title="No progress data" 
           description="Log your weight to start visualizing your journey and milestones."
           actionText="Log Weight"
-          onAction={() => console.log('Log weight clicked')}
+          onAction={() => setShowModal(true)}
         />
       ) : (
         <motion.div 
@@ -51,53 +132,111 @@ export default function ProgressPage() {
               <div>
                 <h3 className="font-bold text-xl mb-1">Weight Trend</h3>
                 <div className="flex items-center gap-2">
-                  <span className="font-fredoka text-3xl font-bold text-text-primary">184.2 <span className="text-lg font-sans text-text-secondary">lbs</span></span>
-                  <span className="flex items-center text-sm font-medium text-status-positive bg-status-positive/10 px-2 py-1 rounded-full">
-                    <TrendingDown className="w-4 h-4 mr-1" /> -4.2 lbs
+                  <span className="font-fredoka text-3xl font-bold text-text-primary">{latestWeight.toFixed(1)} <span className="text-lg font-sans text-text-secondary">lbs</span></span>
+                  <span className={`flex items-center text-sm font-medium px-2 py-1 rounded-full ${isDown ? 'text-status-positive bg-status-positive/10' : 'text-status-negative bg-status-negative/10'}`}>
+                    {isDown ? <TrendingDown className="w-4 h-4 mr-1" /> : <TrendingUp className="w-4 h-4 mr-1" />}
+                    {diff > 0 ? '+' : ''}{diff.toFixed(1)} lbs
                   </span>
                 </div>
               </div>
               <div className="flex bg-[var(--bg-sidebar)] border border-[var(--border-color)] p-1 rounded-lg">
-                <button className="px-4 py-1.5 text-sm font-medium rounded-md text-text-secondary hover:text-text-primary transition-colors">1W</button>
-                <button className="px-4 py-1.5 text-sm font-medium rounded-md bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)]">1M</button>
-                <button className="px-4 py-1.5 text-sm font-medium rounded-md text-text-secondary hover:text-text-primary transition-colors">3M</button>
+                {(['1W', '1M', '3M'] as const).map(tr => (
+                  <button 
+                    key={tr}
+                    onClick={() => setTimeRange(tr)}
+                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${timeRange === tr ? 'bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)]' : 'text-text-secondary hover:text-text-primary'}`}
+                  >
+                    {tr}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Pure CSS SVG Chart Representation */}
-            <div className="relative w-full h-64 bg-[var(--bg-sidebar)] rounded-xl overflow-hidden p-4 border border-[var(--border-color)]">
-              <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                <motion.path 
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  d="M 0 20 L 25 25 L 50 35 L 75 45 L 100 55" 
-                  fill="none" 
-                  stroke="#3FAE71" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                />
+            {filtered.length > 0 ? (
+              <div className="relative w-full h-64 bg-[var(--bg-sidebar)] rounded-xl overflow-hidden p-4 border border-[var(--border-color)]">
+                <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                  <motion.path 
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    d={pathD} 
+                    fill="none" 
+                    stroke="#3FAE71" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                  />
+                  
+                  {filtered.map((s, i) => {
+                    const x = filtered.length === 1 ? 50 : (i / (filtered.length - 1)) * 100
+                    const normalizedWeight = ((s.weight || 0) - minWeight) / (maxWeight - minWeight || 1)
+                    const y = 90 - (normalizedWeight * 80)
+                    return (
+                      <circle key={i} cx={x} cy={y} r="1.5" fill="#3FAE71" />
+                    )
+                  })}
+                </svg>
                 
-                {/* Data points */}
-                <circle cx="0" cy="20" r="1.5" fill="#3FAE71" />
-                <circle cx="25" cy="25" r="1.5" fill="#3FAE71" />
-                <circle cx="50" cy="35" r="1.5" fill="#3FAE71" />
-                <circle cx="75" cy="45" r="1.5" fill="#3FAE71" />
-                <circle cx="100" cy="55" r="1.5" fill="#3FAE71" />
-              </svg>
-              
-              <div className="absolute bottom-4 left-4 right-4 flex justify-between text-xs text-text-secondary font-medium">
-                <span>WK 1</span>
-                <span>WK 2</span>
-                <span>WK 3</span>
-                <span>WK 4</span>
-                <span>NOW</span>
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between text-xs text-text-secondary font-medium">
+                  {filtered.length > 0 && <span>{new Date(filtered[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric'})}</span>}
+                  {filtered.length > 1 && <span>{new Date(filtered[filtered.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric'})}</span>}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center bg-[var(--bg-sidebar)] rounded-xl border border-[var(--border-color)]">
+                <p className="text-text-secondary">No data for this time range.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-[var(--card-bg)] w-full max-w-md rounded-xl shadow-xl border border-[var(--border-color)] p-6">
+            <h2 className="text-xl font-bold mb-4">Log Progress</h2>
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight (lbs)</Label>
+                <Input 
+                  id="weight" 
+                  type="number" 
+                  step="0.1" 
+                  value={weightInput} 
+                  onChange={(e) => setWeightInput(e.target.value)} 
+                  placeholder="e.g. 185.0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bodyFat">Body Fat % (optional)</Label>
+                <Input 
+                  id="bodyFat" 
+                  type="number" 
+                  step="0.1" 
+                  value={bodyFatInput} 
+                  onChange={(e) => setBodyFatInput(e.target.value)} 
+                  placeholder="e.g. 15.5"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes (optional)</Label>
+                <Input 
+                  id="notes" 
+                  value={notesInput} 
+                  onChange={(e) => setNotesInput(e.target.value)} 
+                  placeholder="How are you feeling?"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
+                <Button onClick={handleLogWeight} disabled={isSubmitting || !weightInput}>
+                  {isSubmitting ? "Saving..." : "Save Log"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </DashboardLayout>
   )
