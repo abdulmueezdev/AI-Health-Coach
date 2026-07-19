@@ -161,8 +161,27 @@ export default function WorkoutsPage() {
                 <p className="text-text-secondary mb-8 max-w-md">
                   Estimated time: {workouts[0]?.duration_min || 45} minutes. Intensity: {workouts[0]?.intensity || "Medium"}.
                 </p>
-                <Button className="gap-2 px-8">
-                  <Play className="w-4 h-4 fill-current" /> Start Workout
+                <Button className="gap-2 px-8" onClick={async () => {
+                  if (workouts.length > 0) {
+                    setIsSubmitting(true)
+                    try {
+                      const res = await createWorkout({
+                        type: workouts[0].type,
+                        duration_min: workouts[0].duration_min,
+                        date: new Date().toISOString(),
+                        exercises: workouts[0].exercises || [],
+                        intensity: workouts[0].intensity || 'Medium',
+                        notes: null
+                      })
+                      if (res.success) loadWorkouts()
+                    } finally {
+                      setIsSubmitting(false)
+                    }
+                  } else {
+                    setShowModal(true)
+                  }
+                }}>
+                  <Play className="w-4 h-4 fill-current" /> {isSubmitting ? "Starting..." : "Start Workout"}
                 </Button>
               </CardContent>
             </Card>
@@ -171,20 +190,35 @@ export default function WorkoutsPage() {
               <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-4">Weekly Goal</h3>
                 <div className="flex items-end gap-2 mb-2">
-                  <span className="font-fredoka text-4xl font-bold text-accent-primary">3</span>
+                  <span className="font-fredoka text-4xl font-bold text-accent-primary">
+                    {workouts.filter(w => new Date(w.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
+                  </span>
                   <span className="text-text-secondary mb-1">/ 5 days</span>
                 </div>
-                <div className="w-full bg-[var(--border-color)] rounded-full h-2 mb-6">
-                  <div className="bg-accent-primary h-2 rounded-full" style={{ width: '60%' }}></div>
+                <div className="flex gap-1 h-2 mb-6">
+                  {Array.from({ length: 7 }, (_, i) => {
+                    const d = new Date()
+                    d.setDate(d.getDate() - (6 - i))
+                    const hasWorkout = workouts.some(w => new Date(w.date).toDateString() === d.toDateString())
+                    return (
+                      <div 
+                        key={i} 
+                        className={`flex-1 rounded-full ${hasWorkout ? 'bg-accent-primary' : 'bg-[var(--border-color)]'}`} 
+                      />
+                    )
+                  })}
                 </div>
-                <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-text-secondary">
-                  <div className="text-accent-primary">M</div>
-                  <div className="text-accent-primary">T</div>
-                  <div className="text-accent-primary">W</div>
-                  <div>T</div>
-                  <div>F</div>
-                  <div>S</div>
-                  <div>S</div>
+                <div className="flex justify-between text-[10px] font-bold text-text-secondary uppercase tracking-tighter">
+                  {Array.from({ length: 7 }, (_, i) => {
+                    const d = new Date()
+                    d.setDate(d.getDate() - (6 - i))
+                    const hasWorkout = workouts.some(w => new Date(w.date).toDateString() === d.toDateString())
+                    return (
+                      <span key={i} className={hasWorkout ? "text-accent-primary" : ""}>
+                        {d.toLocaleDateString('en-US', { weekday: 'narrow' })}
+                      </span>
+                    )
+                  })}
                 </div>
               </CardContent>
             </Card>
