@@ -41,7 +41,8 @@ export function useUser() {
     return () => {
       mounted = false
     }
-  }, [user, authLoading, supabase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, authLoading, supabase])
 
   return {
     user,
