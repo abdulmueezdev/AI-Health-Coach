@@ -24,7 +24,7 @@ export default async function CoachPage() {
           </p>
         </div>
         
-        <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <div className="flex-1 bg-[var(--card-bg)] rounded-2xl shadow-sm border border-[var(--border-color)] overflow-hidden relative">
           <CoachChat userId={user?.id || "temp-id"} />
         </div>
       </div>

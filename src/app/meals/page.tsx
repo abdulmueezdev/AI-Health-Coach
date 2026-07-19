@@ -146,7 +146,7 @@ export default function MealsPage() {
         </Button>
       </div>
 
-      <Card className="mb-8 border-dashed bg-gray-50/50">
+      <Card className="mb-8 border-dashed bg-[var(--bg-sidebar)]">
         <CardContent className="p-8 text-center flex flex-col items-center justify-center min-h-[200px]">
           <div className="w-16 h-16 rounded-full bg-accent-primary/10 text-accent-primary flex items-center justify-center mb-4">
             <Camera className="w-8 h-8" />
@@ -172,9 +172,9 @@ export default function MealsPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            className="bg-[var(--card-bg)] rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-[var(--border-color)]"
           >
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-sidebar">
+            <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-sidebar)]">
               <h3 className="font-playfair text-xl font-bold">Log a Meal</h3>
               <button onClick={() => setShowManualLog(false)} className="text-text-secondary hover:text-text-primary p-1">
                 <X className="w-5 h-5" />
@@ -203,7 +203,7 @@ export default function MealsPage() {
               <div>
                 <label className="block text-sm font-medium mb-1">Type</label>
                 <select 
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="w-full rounded-md border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   value={newMealType} 
                   onChange={e => setNewMealType(e.target.value)}
                 >
@@ -246,7 +246,7 @@ export default function MealsPage() {
                   <CardContent className="p-6 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       {meal.photo_url && (
-                        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
+                        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-[var(--bg-sidebar)]">
                           <img src={meal.photo_url} alt={meal.description} className="w-full h-full object-cover" />
                         </div>
                       )}
@@ -258,7 +258,7 @@ export default function MealsPage() {
                       </div>
                       </div>
                     </div>
-                    <div className="text-sm font-medium px-3 py-1 bg-gray-100 rounded-full">
+                    <div className="text-sm font-medium px-3 py-1 bg-[var(--bg-panel-accent)]/20 text-[var(--text-secondary)] rounded-full">
                       {meal.source}
                     </div>
                   </CardContent>

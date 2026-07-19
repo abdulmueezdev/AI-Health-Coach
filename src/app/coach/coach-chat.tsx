@@ -129,7 +129,7 @@ export default function CoachChat({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="flex flex-col h-[600px] w-full bg-gray-50/30 relative overflow-hidden">
+    <div className="flex flex-col h-[600px] w-full bg-[var(--bg-sidebar)] relative overflow-hidden">
       <AnimatePresence>
         {toastMessage && (
           <motion.div
@@ -161,8 +161,8 @@ export default function CoachChat({ userId }: { userId: string }) {
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div className={`flex gap-3 max-w-[80%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white
-                  ${msg.role === "user" ? "bg-gray-800" : "bg-accent-primary font-fredoka"}
+                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${msg.role === "user" ? "text-[var(--card-bg)]" : "text-white"}
+                  ${msg.role === "user" ? "bg-[var(--text-primary)]" : "bg-accent-primary font-fredoka"}
                 `}>
                   {msg.role === "user" ? "U" : "V"}
                 </div>
@@ -170,8 +170,8 @@ export default function CoachChat({ userId }: { userId: string }) {
                 <div className="flex flex-col gap-2">
                   <div className={`p-4 rounded-2xl ${
                     msg.role === "user" 
-                      ? "bg-text-primary text-white rounded-tr-none" 
-                      : "bg-white border border-gray-100 shadow-sm text-text-primary rounded-tl-none"
+                      ? "bg-[var(--text-primary)] text-[var(--card-bg)] rounded-tr-none" 
+                      : "bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)] rounded-tl-none"
                   }`}>
                     {msg.content}
                   </div>
@@ -180,28 +180,28 @@ export default function CoachChat({ userId }: { userId: string }) {
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => playVoice(msg.content, msg.id)}
-                        className="p-1.5 rounded-full hover:bg-gray-200 text-text-secondary transition-colors"
+                        className="p-1.5 rounded-full hover:bg-[var(--bg-panel-accent)]/20 text-[var(--text-secondary)] transition-colors"
                         title="Play"
                       >
                         <Play className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={pauseVoice}
-                        className="p-1.5 rounded-full hover:bg-gray-200 text-text-secondary transition-colors"
+                        className="p-1.5 rounded-full hover:bg-[var(--bg-panel-accent)]/20 text-[var(--text-secondary)] transition-colors"
                         title="Pause"
                       >
                         <Pause className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={stopVoice}
-                        className="p-1.5 rounded-full hover:bg-gray-200 text-text-secondary transition-colors"
+                        className="p-1.5 rounded-full hover:bg-[var(--bg-panel-accent)]/20 text-[var(--text-secondary)] transition-colors"
                         title="Stop"
                       >
                         <Square className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => replayVoice(msg.content, msg.id)}
-                        className="p-1.5 rounded-full hover:bg-gray-200 text-text-secondary transition-colors"
+                        className="p-1.5 rounded-full hover:bg-[var(--bg-panel-accent)]/20 text-[var(--text-secondary)] transition-colors"
                         title="Replay"
                       >
                         <RotateCcw className="w-4 h-4" />
@@ -222,10 +222,10 @@ export default function CoachChat({ userId }: { userId: string }) {
                 <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-accent-primary font-fredoka">
                   V
                 </div>
-                <div className="p-4 rounded-2xl bg-white border border-gray-100 shadow-sm text-text-primary rounded-tl-none flex gap-1 items-center">
-                  <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-100"></span>
-                  <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce delay-200"></span>
+                <div className="p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)] rounded-tl-none flex gap-1 items-center">
+                  <span className="w-2 h-2 bg-[var(--border-color)] rounded-full animate-bounce"></span>
+                  <span className="w-2 h-2 bg-[var(--border-color)] rounded-full animate-bounce delay-100"></span>
+                  <span className="w-2 h-2 bg-[var(--border-color)] rounded-full animate-bounce delay-200"></span>
                 </div>
               </div>
             </motion.div>
@@ -234,13 +234,13 @@ export default function CoachChat({ userId }: { userId: string }) {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-white border-t border-gray-100">
+      <div className="p-4 bg-[var(--card-bg)] border-t border-[var(--border-color)]">
         <form onSubmit={handleSend} className="flex gap-2">
           <Input 
             value={input} 
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask Vitalis anything..."
-            className="flex-1 rounded-full h-12 bg-gray-50 border-transparent focus:bg-white"
+            className="flex-1 rounded-full h-12 bg-[var(--bg-sidebar)] border-transparent focus:bg-[var(--card-bg)]"
             disabled={loading}
           />
           <Button 

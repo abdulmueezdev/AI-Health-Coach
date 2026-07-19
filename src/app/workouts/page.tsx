@@ -95,9 +95,9 @@ export default function WorkoutsPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
+            className="bg-[var(--card-bg)] rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative border border-[var(--border-color)]"
           >
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between">
               <h2 className="font-playfair text-2xl font-bold">New Plan</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
@@ -108,7 +108,7 @@ export default function WorkoutsPage() {
                 <label className="block text-sm font-medium mb-1">Workout Type</label>
                 <input 
                   type="text" 
-                  className="w-full h-12 px-4 rounded-xl border border-gray-200" 
+                  className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" 
                   value={newType} 
                   onChange={(e) => setNewType(e.target.value)} 
                   placeholder="e.g. Upper Body Power"
@@ -119,7 +119,7 @@ export default function WorkoutsPage() {
                 <label className="block text-sm font-medium mb-1">Duration (min)</label>
                 <input 
                   type="number" 
-                  className="w-full h-12 px-4 rounded-xl border border-gray-200" 
+                  className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" 
                   value={newDuration} 
                   onChange={(e) => setNewDuration(e.target.value)} 
                   placeholder="45"
@@ -154,7 +154,7 @@ export default function WorkoutsPage() {
             <Card className="lg:col-span-2 bg-gradient-to-br from-panel-accent/40 to-panel-accent/10 border-panel-accent/30 overflow-hidden relative">
               <div className="absolute right-0 bottom-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -z-10 translate-x-1/3 translate-y-1/3"></div>
               <CardContent className="p-8">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/60 text-sm font-bold text-teal-800 mb-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--card-bg)]/80 text-sm font-bold text-[var(--text-primary)] mb-6 shadow-sm border border-[var(--border-color)]">
                   <Calendar className="w-4 h-4" /> Latest Plan
                 </div>
                 <h2 className="font-playfair text-3xl font-bold mb-2">{workouts[0]?.type || "Workout"}</h2>
@@ -174,7 +174,7 @@ export default function WorkoutsPage() {
                   <span className="font-fredoka text-4xl font-bold text-accent-primary">3</span>
                   <span className="text-text-secondary mb-1">/ 5 days</span>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-2 mb-6">
+                <div className="w-full bg-[var(--border-color)] rounded-full h-2 mb-6">
                   <div className="bg-accent-primary h-2 rounded-full" style={{ width: '60%' }}></div>
                 </div>
                 <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-text-secondary">
@@ -201,7 +201,7 @@ export default function WorkoutsPage() {
                       <h4 className="font-bold text-lg">{workout.type}</h4>
                       <p className="text-sm text-text-secondary mt-1">{new Date(workout.date).toLocaleDateString()} • {workout.duration_min} minutes</p>
                     </div>
-                    <Button variant="outline" className="bg-white h-9 px-4 text-sm font-medium">
+                    <Button variant="outline" className="bg-[var(--card-bg)] border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-panel-accent)]/20 h-9 px-4 text-sm font-medium">
                       Repeat
                     </Button>
                   </CardContent>

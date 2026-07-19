@@ -143,9 +143,9 @@ export default function HabitsPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
+            className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
           >
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)] flex items-center justify-between">
               <h2 className="font-playfair text-2xl font-bold">New Habit</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                 <Plus className="w-5 h-5 rotate-45" />
@@ -154,10 +154,10 @@ export default function HabitsPage() {
             <form onSubmit={handleCreateHabit} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Habit Name</label>
-                <input 
-                  type="text" 
-                  className="w-full h-12 px-4 rounded-xl border border-gray-200" 
-                  value={newHabitName} 
+                  <input 
+                    type="text" 
+                    className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" 
+                    value={newHabitName} 
                   onChange={(e) => setNewHabitName(e.target.value)} 
                   placeholder="e.g. Drink 2L Water"
                   required
@@ -165,9 +165,9 @@ export default function HabitsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Frequency</label>
-                <select 
-                  className="w-full h-12 px-4 rounded-xl border border-gray-200"
-                  value={newHabitFreq}
+                  <select 
+                    className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
+                    value={newHabitFreq}
                   onChange={(e) => setNewHabitFreq(e.target.value)}
                 >
                   <option value="daily">Daily</option>
@@ -221,7 +221,7 @@ export default function HabitsPage() {
                     disabled={!!isCompletedToday}
                     className={cn(
                       "w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-sm",
-                      isCompletedToday ? theme.color + " text-white cursor-default" : theme.light + " text-gray-400 border border-gray-200"
+                      isCompletedToday ? theme.color + " text-white cursor-default" : theme.light + " text-[var(--text-secondary)] border border-[var(--border-color)] dark:bg-[var(--bg-panel-accent)]/20"
                     )}
                   >
                     <Check className="w-6 h-6" strokeWidth={isCompletedToday ? 3 : 2} />
@@ -237,7 +237,7 @@ export default function HabitsPage() {
                         key={i} 
                         className={cn(
                           "flex-1 rounded-sm transition-colors",
-                          isActive ? theme.color : "bg-gray-100"
+                          isActive ? theme.color : "bg-[var(--border-color)]"
                         )} 
                         title={isActive ? "Completed" : "Missed"}
                       />

@@ -109,7 +109,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between pt-4 border-t border-[var(--border-color)]">
                     <div className="text-sm text-status-positive font-medium h-5">
                       {saved && "Settings saved successfully."}
                     </div>
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                 <CardTitle>Appearance</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between p-4 rounded-card bg-canvas">
+                <div className="flex items-center justify-between p-4 rounded-card bg-[var(--bg-sidebar)]">
                   <div>
                     <p className="font-medium text-text-primary">Theme</p>
                     <p className="text-sm text-text-secondary">Choose your preferred appearance</p>
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                     <h4 className="font-bold text-text-primary">Sign Out</h4>
                     <p className="text-sm text-text-secondary">Log out of your current session on this device.</p>
                   </div>
-                  <Button type="button" variant="outline" className="bg-white border-gray-200 text-text-primary hover:bg-gray-50 gap-2" onClick={handleLogout}>
+                  <Button type="button" variant="outline" className="bg-[var(--card-bg)] border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-panel-accent)]/20 gap-2" onClick={handleLogout}>
                     <LogOut className="w-4 h-4" /> Sign Out
                   </Button>
                 </div>

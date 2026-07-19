@@ -109,7 +109,7 @@ export default function DashboardPage() {
         <h3 className="font-playfair text-lg font-bold">You&apos;re crushing it</h3>
       </div>
       
-      <Card className="bg-white/60 backdrop-blur-sm border-white/40 shadow-sm">
+      <Card className="bg-[var(--card-bg)] border-[var(--border-color)] shadow-sm">
         <CardContent className="p-6">
           <p className="text-sm text-accent-primary uppercase tracking-wider font-bold mb-3">Daily Tip</p>
           <p className="font-sans text-sm text-text-secondary leading-relaxed">Let&apos;s keep the momentum going! Remember to stay hydrated after your workout.</p>
@@ -128,7 +128,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 + (i * 0.1) }}
-            className="flex items-center justify-between p-4 bg-white/50 hover:bg-white border border-white/60 rounded-xl cursor-pointer transition-all group"
+            className="flex items-center justify-between p-4 bg-[var(--bg-sidebar)] hover:bg-[var(--bg-panel-accent)]/20 border border-[var(--border-color)] rounded-xl cursor-pointer transition-all group"
           >
             <span className="font-medium text-sm">{action}</span>
             <ArrowUpRight className="w-4 h-4 text-text-secondary group-hover:text-accent-primary transition-colors" />
@@ -177,7 +177,7 @@ export default function DashboardPage() {
         <motion.div variants={item}>
           <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
             <CardContent className="p-6 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-orange-50 text-accent-primary flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] flex items-center justify-center mb-4">
                 <Flame className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Calories</h3>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
         <motion.div variants={item}>
           <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
             <CardContent className="p-6 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-[var(--bg-panel-accent)]/50 text-[var(--text-primary)] flex items-center justify-center mb-4">
                 <Target className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Workouts</h3>
@@ -204,7 +204,7 @@ export default function DashboardPage() {
               </div>
               <div className="w-full mt-auto pt-4 flex gap-1 h-8 items-end justify-center">
                 {[1, 1, 1, 1, 0, 0, 0].map((active, i) => (
-                  <div key={i} className={`w-full rounded-sm ${active ? 'bg-blue-400 h-full' : 'bg-gray-100 h-1/3'}`} />
+                  <div key={i} className={`w-full rounded-sm ${active ? 'bg-[var(--bg-panel-accent)] h-full' : 'bg-[var(--border-color)] h-1/3'}`} />
                 ))}
               </div>
             </CardContent>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
         <motion.div variants={item}>
           <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
             <CardContent className="p-6 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-green-50 text-status-positive flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-[var(--status-positive)]/10 text-[var(--status-positive)] flex items-center justify-center mb-4">
                 <Trophy className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-medium text-text-secondary mb-1">Weight Progress</h3>
@@ -254,7 +254,7 @@ export default function DashboardPage() {
                     <span className="font-medium text-sm">{habit.name}</span>
                     <span className="text-xs text-text-secondary">{habit.completed_today ? "Done" : "Pending"}</span>
                   </div>
-                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-[var(--border-color)] rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
                       whileInView={{ width: `${completed}%` }}

@@ -57,15 +57,15 @@ export default function ProgressPage() {
                   </span>
                 </div>
               </div>
-              <div className="flex bg-gray-100 p-1 rounded-lg">
+              <div className="flex bg-[var(--bg-sidebar)] border border-[var(--border-color)] p-1 rounded-lg">
                 <button className="px-4 py-1.5 text-sm font-medium rounded-md text-text-secondary hover:text-text-primary transition-colors">1W</button>
-                <button className="px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow-sm text-text-primary">1M</button>
+                <button className="px-4 py-1.5 text-sm font-medium rounded-md bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-[var(--text-primary)]">1M</button>
                 <button className="px-4 py-1.5 text-sm font-medium rounded-md text-text-secondary hover:text-text-primary transition-colors">3M</button>
               </div>
             </div>
 
             {/* Pure CSS SVG Chart Representation */}
-            <div className="relative w-full h-64 bg-gray-50/50 rounded-xl overflow-hidden p-4 border border-gray-100">
+            <div className="relative w-full h-64 bg-[var(--bg-sidebar)] rounded-xl overflow-hidden p-4 border border-[var(--border-color)]">
               <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
                 <motion.path 
                   initial={{ pathLength: 0 }}
