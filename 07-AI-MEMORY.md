@@ -206,3 +206,10 @@ Next.js (App Router) + TypeScript + Tailwind CSS, Supabase (Postgres/Auth/Storag
 - **Architecture Details**: Utilizes CSS variables + `next-themes` + Tailwind `darkMode: 'class'`. `next-themes` manages the `dark` class on the `html` element dynamically.
 - **Known Issue**: The Sign Out button has hardcoded colors that won't switch seamlessly in dark mode. (Scheduled for future polish).
 - **Testing Limitation**: Full client-side toggle execution manually verified via chrome-devtools-mcp. Visual tests on Landing, Dashboard, and Settings confirmed CSS variable injection and dark mode rendering works flawlessly.
+
+## v1.0.5 Changelog
+- Landing page redesigned: "How It Works" (4-step flow), "Features" (6-card grid)
+- Removed dead elements: Pricing nav link, Watch Demo button
+- Recommended Actions on dashboard now navigate to correct routes
+- All changes verified with design-taste-frontend, ui-ux-pro-max, taste-design skills
+- Build passes, TypeScript clean

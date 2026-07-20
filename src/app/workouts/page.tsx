@@ -218,39 +218,37 @@ export default function WorkoutsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-[var(--card-bg)] border-[var(--border-color)]">
               <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-4">Weekly Goal</h3>
-                <div className="flex items-end gap-2 mb-2">
-                  <span className="font-fredoka text-4xl font-bold text-accent-primary">
-                    {weeklyProgress}
-                  </span>
-                  <span className="text-text-secondary mb-1">/ 5 days</span>
-                </div>
-                <div className="flex gap-1 h-2 mb-6">
-                  {Array.from({ length: 7 }, (_, i) => {
-                    const d = new Date()
-                    d.setDate(d.getDate() - (6 - i))
-                    const hasWorkout = workouts.some(w => new Date(w.date).toDateString() === d.toDateString())
-                    return (
-                      <div 
-                        key={i} 
-                        className={`flex-1 rounded-full ${hasWorkout ? 'bg-accent-primary' : 'bg-[var(--border-color)]'}`} 
-                      />
-                    )
-                  })}
-                </div>
-                <div className="flex justify-between text-[10px] font-bold text-text-secondary uppercase tracking-tighter">
-                  {Array.from({ length: 7 }, (_, i) => {
-                    const d = new Date()
-                    d.setDate(d.getDate() - (6 - i))
-                    const hasWorkout = workouts.some(w => new Date(w.date).toDateString() === d.toDateString())
-                    return (
-                      <span key={i} className={hasWorkout ? "text-accent-primary" : ""}>
-                        {d.toLocaleDateString('en-US', { weekday: 'narrow' })}
+                <h3 className="font-bold text-lg mb-4">Quick Stats</h3>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Weekly Workouts</p>
+                    <div className="flex items-end gap-2">
+                      <span className="font-fredoka text-3xl font-bold text-[var(--accent-primary)]">
+                        {weeklyProgress}
                       </span>
-                    )
-                  })}
+                      <span className="text-[var(--text-secondary)] mb-1 font-medium">/ 5 target</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Total Duration</p>
+                    <div className="flex items-end gap-2">
+                      <span className="font-fredoka text-3xl font-bold text-[var(--text-primary)]">
+                        {last7DaysWorkouts.reduce((acc, w) => acc + (w.duration_min || 0), 0)}
+                      </span>
+                      <span className="text-[var(--text-secondary)] mb-1 font-medium">min</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">Est. Calories Burned</p>
+                    <div className="flex items-end gap-2">
+                      <span className="font-fredoka text-3xl font-bold text-[var(--text-primary)]">
+                        {last7DaysWorkouts.reduce((acc, w) => acc + ((w.duration_min || 0) * 8), 0)}
+                      </span>
+                      <span className="text-[var(--text-secondary)] mb-1 font-medium">kcal</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

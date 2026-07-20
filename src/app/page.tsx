@@ -16,8 +16,8 @@ export default function LandingPage() {
           <span className="font-playfair text-xl font-bold">Vitalis</span>
         </div>
         <nav className="hidden md:flex items-center gap-8 font-sans text-sm font-medium text-[var(--text-secondary)]">
-          <Link href="#features" className="hover:text-[var(--text-primary)] transition-colors">Features</Link>
-          <Link href="#how-it-works" className="hover:text-[var(--text-primary)] transition-colors">How it Works</Link>
+          <Link href="#features" scroll={true} className="hover:text-[var(--text-primary)] transition-colors">Features</Link>
+          <Link href="#how-it-works" scroll={true} className="hover:text-[var(--text-primary)] transition-colors">How it Works</Link>
         </nav>
         <div className="flex items-center gap-4">
           <Link href="/login" className="font-sans text-sm font-medium hover:text-[var(--accent-primary)] transition-colors">
@@ -160,12 +160,12 @@ export default function LandingPage() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {[
-              { icon: Camera, title: "Meal Photo Analysis", desc: "Snap a photo, get instant calorie & macro estimates" },
-              { icon: Dumbbell, title: "Workout Planning", desc: "Track routines, sets, reps, and progress over time" },
-              { icon: CheckSquare, title: "Habit Tracking", desc: "Daily habits with streaks that keep you accountable" },
-              { icon: Bot, title: "AI Coach", desc: "Personalized coaching that remembers your history" },
-              { icon: Volume2, title: "Voice Playback", desc: "Listen to your coach while you get ready" },
-              { icon: Smartphone, title: "Mobile First", desc: "Designed for your phone, works on any device" }
+              { icon: Camera, title: "Meal Photo Analysis", desc: "Snap a photo, get instant calorie & macro estimates", href: "/meals" },
+              { icon: Dumbbell, title: "Workout Planning", desc: "Track routines, sets, reps, and progress over time", href: "/workouts" },
+              { icon: CheckSquare, title: "Habit Tracking", desc: "Daily habits with streaks that keep you accountable", href: "/habits" },
+              { icon: Bot, title: "AI Coach", desc: "Personalized coaching that remembers your history", href: "/coach" },
+              { icon: Volume2, title: "Voice Playback", desc: "Listen to your coach while you get ready", href: "/coach" },
+              { icon: Smartphone, title: "Mobile First", desc: "Designed for your phone, works on any device", href: "/dashboard" }
             ].map((feature, idx) => (
               <motion.div 
                 key={idx}
@@ -174,11 +174,14 @@ export default function LandingPage() {
                   visible: { opacity: 1, y: 0 }
                 }}
                 transition={{ duration: 0.5 }}
-                className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[24px] p-6 shadow-sm hover:border-[var(--accent-primary)] hover:shadow-md transition-all duration-300"
               >
-                <feature.icon size={40} className="text-[var(--accent-primary)] mb-6" strokeWidth={1.5} />
-                <h3 className="font-fredoka text-lg font-bold text-[var(--text-primary)] mb-2">{feature.title}</h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{feature.desc}</p>
+                <Link href={feature.href} prefetch={true} className="block">
+                  <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[24px] p-6 shadow-sm hover:border-[var(--accent-primary)] hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+                    <feature.icon size={40} className="text-[var(--accent-primary)] mb-6" strokeWidth={1.5} />
+                    <h3 className="font-fredoka text-lg font-bold text-[var(--text-primary)] mb-2">{feature.title}</h3>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{feature.desc}</p>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </motion.div>
