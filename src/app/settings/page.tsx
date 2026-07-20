@@ -14,6 +14,137 @@ import { LoadingSkeleton } from "@/components/ui/states"
 import { useUser } from "@/lib/hooks/useUser"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme/ThemeToggle"
+import { useReminders } from '@/lib/hooks/useReminders';
+import { requestNotificationPermission } from '@/lib/notifications/request-permission';
+import { Bell, Plus, Trash2, Clock, Check } from 'lucide-react';
+
+const RemindersSection = () => {
+  const { reminders, addReminder, removeReminder, toggleReminder } = useReminders();
+  const [newHabit, setNewHabit] = useState('');
+  const [newTime, setNewTime] = useState('08:00');
+  const [selectedDays, setSelectedDays] = useState<number[]>([1,2,3,4,5]);
+
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const handleAdd = async () => {
+    const permission = await requestNotificationPermission();
+    if (permission !== 'granted') {
+      alert('Please enable notifications in your browser settings.');
+      return;
+    }
+    if (!newHabit.trim()) return;
+    addReminder({
+      habitName: newHabit,
+      time: newTime,
+      days: selectedDays,
+      enabled: true,
+    });
+    setNewHabit('');
+  };
+
+  return (
+    <div className="bg-[var(--card-bg)] rounded-3xl p-6 border border-[var(--border-color)]">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-full bg-[var(--accent-primary)]/10 flex items-center justify-center">
+          <Bell className="w-5 h-5 text-[var(--accent-primary)]" />
+        </div>
+        <div>
+          <h3 className="text-lg font-fredoka text-[var(--text-primary)]">Habit Reminders</h3>
+          <p className="text-sm text-[var(--text-secondary)]">Get notified when it&apos;s time</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Habit name (e.g., Deep breathing)"
+          value={newHabit}
+          onChange={(e) => setNewHabit(e.target.value)}
+          className="flex h-12 w-full rounded-full border border-[var(--border-color)] bg-[var(--bg-canvas)] px-4 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]"
+        />
+        
+        <div className="flex items-center gap-3">
+          <Clock className="w-4 h-4 text-[var(--text-secondary)]" />
+          <input
+            type="time"
+            value={newTime}
+            onChange={(e) => setNewTime(e.target.value)}
+            className="h-10 rounded-full border border-[var(--border-color)] bg-[var(--bg-canvas)] px-4 text-sm text-[var(--text-primary)]"
+          />
+        </div>
+
+        <div className="flex gap-2 flex-wrap">
+          {days.map((day, i) => (
+            <button
+              key={day}
+              onClick={() => setSelectedDays(prev => 
+                prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i]
+              )}
+              className={`w-10 h-10 rounded-full text-xs font-medium transition-colors ${
+                selectedDays.includes(i)
+                  ? 'bg-[var(--accent-primary)] text-white'
+                  : 'bg-[var(--border-color)]/30 text-[var(--text-secondary)]'
+              }`}
+            >
+              {day[0]}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={handleAdd}
+          className="flex items-center justify-center gap-2 h-12 rounded-full bg-[var(--accent-primary)] text-white font-medium hover:opacity-90 transition-opacity"
+        >
+          <Plus className="w-4 h-4" />
+          Add Reminder
+        </button>
+      </div>
+
+      {reminders.length === 0 ? (
+        <p className="text-sm text-[var(--text-secondary)] text-center py-4">No reminders yet. Add one above!</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {reminders.map(reminder => (
+            <div
+              key={reminder.id}
+              className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
+                reminder.enabled 
+                  ? 'border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/5' 
+                  : 'border-[var(--border-color)] bg-[var(--bg-canvas)]'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => toggleReminder(reminder.id)}
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    reminder.enabled 
+                      ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)]' 
+                      : 'border-[var(--border-color)]'
+                  }`}
+                >
+                  {reminder.enabled && <Check className="w-3 h-3 text-white" />}
+                </button>
+                <div>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{reminder.habitName}</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {reminder.time} · {reminder.days.map(d => days[d]).join(', ')}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => removeReminder(reminder.id)}
+                className="p-2 rounded-full hover:bg-red-500/10 text-[var(--text-secondary)] hover:text-red-500 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -150,6 +281,10 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
+
+          <motion.div variants={item}>
+            <RemindersSection />
           </motion.div>
 
           <motion.div variants={item}>

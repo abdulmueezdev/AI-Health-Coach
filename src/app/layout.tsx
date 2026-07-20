@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
+import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar'
 import "./globals.css";
 
 const inter = Inter({
@@ -29,6 +30,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
+          <ServiceWorkerRegistrar />
           {children}
         </ThemeProvider>
       </body>

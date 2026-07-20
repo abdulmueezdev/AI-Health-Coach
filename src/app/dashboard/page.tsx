@@ -7,11 +7,14 @@ import { useUser } from "@/lib/hooks/useUser"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
-import { Flame, Target, Trophy, ArrowUpRight, ArrowRight } from "lucide-react"
-import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
-import { getMeals } from "@/server/actions/meals"
-import { getWorkouts } from "@/server/actions/workouts"
-import { getHabits } from "@/server/actions/habits"
+import { Flame, Target, Trophy, ArrowUpRight, Coffee, Footprints, Wind, Plus, Loader2 } from "lucide-react"
+import { LoadingSkeleton, ErrorState } from "@/components/ui/states"
+import { getMeals, createMeal } from "@/server/actions/meals"
+import { getWorkouts, createWorkout } from "@/server/actions/workouts"
+import { getHabits, createHabit, logHabitCompletion } from "@/server/actions/habits"
+import { Toast } from "@/components/ui/Toast"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
 // Simple CountUp component
 function CountUp({ end, suffix = "", duration = 2 }: { end: number, suffix?: string, duration?: number }) {
@@ -44,12 +47,16 @@ function CountUp({ end, suffix = "", duration = 2 }: { end: number, suffix?: str
 
 export default function DashboardPage() {
   const { user, profile } = useUser()
+  const router = useRouter()
+  const supabase = createClient()
   console.log('DASHBOARD: Component mounted')
   console.log('DASHBOARD: User =', user)
   console.log('DASHBOARD: Profile =', profile)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isEmpty, setIsEmpty] = useState(true)
+  
+  const [toast, setToast] = useState<{message: string; type: 'success' | 'error'} | null>(null)
+  const [loadingAction, setLoadingAction] = useState<string | null>(null)
 
   const [calories, setCalories] = useState(0)
   const [workoutsCount, setWorkoutsCount] = useState(0)
@@ -57,6 +64,20 @@ export default function DashboardPage() {
   const [meals, setMeals] = useState<unknown[]>([])
   const [workouts, setWorkouts] = useState<unknown[]>([])
   const [habits, setHabits] = useState<unknown[]>([])
+
+  console.log('=== DASHBOARD MOUNTED ===');
+  console.log('User object:', user);
+  console.log('Profile object:', profile);
+  console.log('Profile display_name:', profile?.display_name);
+  console.log('Meals array:', meals);
+  console.log('Meals length:', meals?.length);
+  console.log('Meals type:', typeof meals, Array.isArray(meals));
+  console.log('Workouts array:', workouts);
+  console.log('Workouts length:', workouts?.length);
+  console.log('Workouts type:', typeof workouts, Array.isArray(workouts));
+  console.log('Habits array:', habits);
+  console.log('Habits length:', habits?.length);
+  console.log('Habits type:', typeof habits, Array.isArray(habits));
 
   useEffect(() => {
     async function loadData() {
@@ -97,7 +118,6 @@ export default function DashboardPage() {
           return { name: h.name, completed_today: completedToday }
         }))
 
-        setIsEmpty(meals.length === 0 && workouts.length === 0 && habits.length === 0)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load dashboard data')
       } finally {
@@ -120,6 +140,68 @@ export default function DashboardPage() {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   }
 
+  const handleQuickAction = async (actionType: string) => {
+    if (!user) return;
+    
+    setLoadingAction(actionType);
+    try {
+      if (actionType === "fast") {
+        // Log a default break-fast meal
+        await createMeal({
+          description: "Break-fast meal",
+          calories_estimate: 400,
+          macros: { protein: 20, carbs: 45, fat: 15 },
+          source: "manual",
+          logged_at: new Date().toISOString(),
+          photo_url: null
+        });
+        setToast({ message: "Break-fast logged! +400 cal", type: "success" });
+        router.refresh();
+      } else if (actionType === "walk") {
+        await createWorkout({
+          type: "Outdoor walk",
+          duration_min: 15,
+          intensity: "low",
+          exercises: [],
+          date: new Date().toISOString().split('T')[0],
+          notes: "Logged via Quick Action"
+        });
+        setToast({ message: "Outdoor Walk logged! 15 min", type: "success" });
+        router.refresh();
+      } else if (actionType === "breathe") {
+        // First, check if "Deep breathing" habit exists
+        const { data: existingHabit } = await supabase
+          .from('habits')
+          .select('id, streak_count')
+          .eq('user_id', user.id)
+          .eq('name', 'Deep breathing session')
+          .single();
+        
+        if (existingHabit) {
+          await logHabitCompletion(existingHabit.id);
+          setToast({ message: `Deep breathing done! Streak: ${existingHabit.streak_count + 1}`, type: "success" });
+        } else {
+          // Create the habit first
+          const { data: newHabit } = await createHabit({
+            name: "Deep breathing session",
+            frequency: "daily"
+          });
+          if (newHabit) {
+            await logHabitCompletion(newHabit.id);
+            setToast({ message: "Deep breathing habit created & logged!", type: "success" });
+          }
+        }
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Action failed:", err);
+      setToast({ message: "Failed to log action", type: "error" });
+    } finally {
+      setLoadingAction(null);
+      setTimeout(() => setToast(null), 3000);
+    }
+  }
+
   const insightPanel = (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-8">
@@ -131,17 +213,17 @@ export default function DashboardPage() {
       
       <Card className="bg-[var(--card-bg)] border-[var(--border-color)] shadow-sm">
         <CardContent className="p-6">
-          <p className="text-sm text-accent-primary uppercase tracking-wider font-bold mb-3">Daily Tip</p>
-          <p className="font-sans text-sm text-text-secondary leading-relaxed">Let&apos;s keep the momentum going! Remember to stay hydrated after your workout.</p>
+          <p className="text-sm text-[var(--accent-primary)] uppercase tracking-wider font-bold mb-3">Daily Tip</p>
+          <p className="font-sans text-sm text-[var(--text-secondary)] leading-relaxed">Let&apos;s keep the momentum going! Remember to stay hydrated after your workout.</p>
         </CardContent>
       </Card>
       
       <div className="space-y-3">
-        <h4 className="font-sans text-sm font-bold text-text-secondary uppercase tracking-wider mt-8 mb-4">Recommended Actions</h4>
+        <h4 className="font-sans text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-8 mb-4">Recommended Actions</h4>
         {[
-          { text: "Extend fast by 30m", href: "/meals" },
-          { text: "15m Outdoor walk", href: "/workouts" },
-          { text: "Deep breathing session", href: "/habits" }
+          { id: "fast", text: "Extend fast by 30m", icon: Coffee },
+          { id: "walk", text: "15m Outdoor walk", icon: Footprints },
+          { id: "breathe", text: "Deep breathing session", icon: Wind }
         ].map((action, i) => (
           <motion.div 
             key={i}
@@ -149,14 +231,22 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 + (i * 0.1) }}
           >
-            <Link 
-              href={action.href}
-              prefetch={true}
-              className="flex items-center justify-between p-4 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-primary)] transition-colors group"
+            <div 
+              onClick={() => handleQuickAction(action.id)}
+              className="flex items-center justify-between p-4 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/5 active:scale-[0.98] transition-all cursor-pointer group"
             >
-              <span className="text-[var(--text-primary)]">{action.text}</span>
-              <ArrowRight className="w-4 h-4 text-[var(--accent-primary)] group-hover:translate-x-1 transition-transform" />
-            </Link>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[var(--accent-primary)]/10 flex items-center justify-center">
+                  <action.icon className="w-4 h-4 text-[var(--accent-primary)]" />
+                </div>
+                <span className="text-[var(--text-primary)] font-medium">{action.text}</span>
+              </div>
+              {loadingAction === action.id ? (
+                <Loader2 className="w-5 h-5 text-[var(--accent-primary)] animate-spin" />
+              ) : (
+                <Plus className="w-5 h-5 text-[var(--accent-primary)] group-hover:rotate-90 transition-transform" />
+              )}
+            </div>
           </motion.div>
         ))}
       </div>
@@ -165,6 +255,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout insightPanel={insightPanel}>
+      {toast && <Toast message={toast.message} type={toast.type} />}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -189,13 +280,6 @@ export default function DashboardPage() {
         <LoadingSkeleton />
       ) : error ? (
         <ErrorState message={error} onRetry={() => window.location.reload()} />
-      ) : isEmpty ? (
-        <EmptyState 
-          title="Welcome to Vitalis" 
-          description="Your dashboard is looking a little empty. Start by logging a meal or planning your first workout!"
-          actionText="Log First Meal"
-          onAction={() => window.location.href = '/meals'}
-        />
       ) : (
         <>
           <motion.div 
@@ -224,7 +308,7 @@ export default function DashboardPage() {
                 <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
                   <CountUp end={calories} /> <span className="text-base text-text-secondary font-sans font-normal">/ 2400</span>
                 </div>
-                <div className="text-xs font-medium px-3 py-1 bg-panel-accent/30 text-teal-800 rounded-full mt-auto">
+                <div className="text-xs font-medium px-3 py-1 bg-[var(--bg-panel-accent)]/30 text-teal-800 rounded-full mt-auto">
                   Goal: Weight Loss
                 </div>
               </CardContent>
