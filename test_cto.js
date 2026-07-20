@@ -11,7 +11,7 @@ const puppeteer = require('puppeteer');
   });
 
   console.log('1. Testing Login/Signup...');
-  await page.goto('http://localhost:3001/signup');
+  await page.goto('http://localhost:3000/signup');
   await page.type('input[name="email"]', 'test_cto_' + Date.now() + '@example.com');
   await page.type('input[name="password"]', 'password123');
   await page.click('button[type="submit"]');
@@ -19,7 +19,7 @@ const puppeteer = require('puppeteer');
   console.log('Successfully signed in and reached:', page.url());
 
   console.log('\n2. Testing Workouts...');
-  await page.goto('http://localhost:3001/workouts');
+  await page.goto('http://localhost:3000/workouts');
   await page.waitForSelector('button', { timeout: 5000 });
   
   // Try to click Start Workout. If there are no workouts, click Create Workout and make one
@@ -47,7 +47,7 @@ const puppeteer = require('puppeteer');
   }
 
   console.log('\n3. Testing Habits...');
-  await page.goto('http://localhost:3001/habits');
+  await page.goto('http://localhost:3000/habits');
   await page.waitForSelector('.group', { timeout: 5000 });
   
   const streakBefore = await page.evaluate(() => {
@@ -81,7 +81,7 @@ const puppeteer = require('puppeteer');
 
   console.log('\n4. Testing Settings...');
   const startSettings = Date.now();
-  await page.goto('http://localhost:3001/settings');
+  await page.goto('http://localhost:3000/settings');
   await page.waitForSelector('input[name="full_name"]', { timeout: 5000 });
   const endSettings = Date.now();
   
