@@ -43,7 +43,10 @@ function CountUp({ end, suffix = "", duration = 2 }: { end: number, suffix?: str
 }
 
 export default function DashboardPage() {
-  const { profile } = useUser()
+  const { user, profile } = useUser()
+  console.log('DASHBOARD: Component mounted')
+  console.log('DASHBOARD: User =', user)
+  console.log('DASHBOARD: Profile =', profile)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isEmpty, setIsEmpty] = useState(true)
@@ -71,6 +74,10 @@ export default function DashboardPage() {
         const meals = mealsRes.data || []
         const workouts = workoutsRes.data || []
         const habits = habitsRes.data || []
+
+        console.log('DASHBOARD: Meals =', meals, 'Count:', meals?.length)
+        console.log('DASHBOARD: Workouts =', workouts, 'Count:', workouts?.length)
+        console.log('DASHBOARD: Habits =', habits, 'Count:', habits?.length)
 
         setMeals(meals)
         setWorkouts(workouts)
@@ -164,11 +171,17 @@ export default function DashboardPage() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="mb-8 sm:mb-10"
       >
-        <h1 className="font-playfair text-3xl sm:text-4xl font-bold mb-2">Good Morning, {profile?.display_name || "there"}</h1>
-        {!loading && !error && !isEmpty && (
-          <p className="text-text-secondary font-sans text-base sm:text-lg">
-            You&apos;re on track! Your recovery score is <span className="text-status-positive font-bold">88%</span> today.
-          </p>
+        <h1 className="font-playfair text-3xl sm:text-4xl font-bold mb-2">
+          Good Morning, {profile?.display_name || user?.user_metadata?.display_name || "there"}
+        </h1>
+        {!loading && !error && (
+          <div className="text-[var(--text-secondary)] font-sans text-base sm:text-lg">
+            {workoutsCount > 0 ? (
+              <p>You&apos;re crushing it! <span className="text-[var(--status-positive)] font-bold">{workoutsCount}</span> workouts this week.</p>
+            ) : (
+              <p>Let&apos;s get started! Log your first workout.</p>
+            )}
+          </div>
         )}
       </motion.div>
 
@@ -249,7 +262,7 @@ export default function DashboardPage() {
           )}
         </motion.div>
 
-        {/* Stat Card 3: Weight */}
+        {/* Stat Card 3: Habits */}
         <motion.div variants={item}>
           {habits.length === 0 ? (
             <div className="bg-[var(--card-bg)] rounded-3xl p-6 border border-[var(--border-color)] text-center h-full flex flex-col items-center justify-center">
@@ -265,9 +278,9 @@ export default function DashboardPage() {
                 <div className="w-12 h-12 rounded-full bg-[var(--status-positive)]/10 text-[var(--status-positive)] flex items-center justify-center mb-4">
                   <Trophy className="w-6 h-6" />
                 </div>
-                <h3 className="text-sm font-medium text-text-secondary mb-1">Weight Progress</h3>
+                <h3 className="text-sm font-medium text-text-secondary mb-1">Active Habits</h3>
                 <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
-                  -<CountUp end={0} /><span className="font-sans">.0</span> <span className="text-base text-text-secondary font-sans font-normal">lbs</span>
+                  <CountUp end={habits.length} /> <span className="text-base text-text-secondary font-sans font-normal">tracking</span>
                 </div>
                 <div className="text-xs font-medium text-status-positive mt-auto flex items-center gap-1">
                   <ArrowUpRight className="w-3 h-3 rotate-90" /> On Track

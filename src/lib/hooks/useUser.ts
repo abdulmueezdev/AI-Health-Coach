@@ -21,16 +21,28 @@ export function useUser() {
         return
       }
 
-      setLoading(true)
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
+      try {
+        setLoading(true)
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single()
 
-      if (mounted) {
-        setProfile(data as Profile | null)
-        setLoading(false)
+        if (error) {
+          console.error('Error fetching profile:', error)
+        }
+
+        if (mounted) {
+          setProfile(data as Profile | null)
+          setLoading(false)
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching profile:', err)
+        if (mounted) {
+          setProfile(null)
+          setLoading(false)
+        }
       }
     }
 
