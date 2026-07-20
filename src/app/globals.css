@@ -49,3 +49,8 @@
     text-wrap: balance;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px; /* Increased for taller nav */
+}

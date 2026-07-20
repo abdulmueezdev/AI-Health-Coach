@@ -2,10 +2,11 @@
 export const dynamic = 'force-dynamic'
 
 import { motion } from "framer-motion"
+import { useUser } from "@/lib/hooks/useUser"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, TrendingDown, TrendingUp } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useState, useEffect } from "react"
 import { LoadingSkeleton } from "@/components/ui/states"
 import { getSnapshots, createSnapshot } from "@/server/actions/progress"
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function ProgressPage() {
+  const { profile } = useUser()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [snapshots, setSnapshots] = useState<ProgressSnapshot[]>([])
@@ -55,8 +57,20 @@ export default function ProgressPage() {
 
   const latestWeight = filtered.length > 0 ? (filtered[filtered.length - 1].weight || 0) : 0
   const oldestWeight = filtered.length > 0 ? (filtered[0].weight || latestWeight) : latestWeight
-  const diff = latestWeight - oldestWeight
-  const isDown = diff <= 0
+  const weightChange = latestWeight - oldestWeight
+  
+  const isWeightLossGoal = profile?.goal_type === 'lose weight';
+  const trendIsGood = isWeightLossGoal ? weightChange <= 0 : weightChange >= 0;
+
+  const width = 800;
+  const height = 256;
+  const paddingX = 60;
+  const paddingY = 30;
+  const yScale = (val: number) => {
+    const range = maxWeight - minWeight || 1;
+    const norm = (val - minWeight) / range;
+    return (height - paddingY) - (norm * (height - 2 * paddingY));
+  };
 
   let pathD = ""
   let minWeight = 0
@@ -65,12 +79,10 @@ export default function ProgressPage() {
   if (filtered.length > 0) {
     minWeight = Math.min(...filtered.map(s => s.weight || 0))
     maxWeight = Math.max(...filtered.map(s => s.weight || 0))
-    const range = maxWeight - minWeight || 1 // avoid div by 0
     
     pathD = filtered.map((s, i) => {
-      const x = filtered.length === 1 ? 50 : (i / (filtered.length - 1)) * 100
-      const normalizedWeight = ((s.weight || 0) - minWeight) / range
-      const y = 90 - (normalizedWeight * 80) // map to 10-90 Y range
+      const x = paddingX + (i / (filtered.length - 1)) * (width - 2 * paddingX);
+      const y = yScale(s.weight || 0);
       return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
     }).join(" ")
   }
@@ -146,9 +158,8 @@ export default function ProgressPage() {
                 <h3 className="font-bold text-xl mb-1">Weight Trend</h3>
                 <div className="flex items-center gap-2">
                   <span className="font-fredoka text-3xl font-bold text-text-primary">{latestWeight.toFixed(1)} <span className="text-lg font-sans text-text-secondary">lbs</span></span>
-                  <span className={`flex items-center text-sm font-medium px-2 py-1 rounded-full ${isDown ? 'text-status-positive bg-status-positive/10' : 'text-status-negative bg-status-negative/10'}`}>
-                    {isDown ? <TrendingDown className="w-4 h-4 mr-1" /> : <TrendingUp className="w-4 h-4 mr-1" />}
-                    {diff > 0 ? '+' : ''}{diff.toFixed(1)} lbs
+                  <span className={`flex items-center text-sm font-medium px-2 py-1 rounded-full ${trendIsGood ? 'bg-status-positive/10 text-[var(--status-positive)]' : 'bg-status-warning/10 text-[var(--status-warning)]'}`}>
+                    {trendIsGood ? '↓' : '↑'} {Math.abs(weightChange).toFixed(1)} lbs
                   </span>
                 </div>
               </div>
@@ -165,32 +176,74 @@ export default function ProgressPage() {
               </div>
             </div>
 
-            {filtered.length > 0 ? (
-              <div className="relative w-full h-64 bg-[var(--bg-sidebar)] rounded-xl overflow-hidden p-4 border border-[var(--border-color)]">
-                <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+            {filtered.length === 1 ? (
+              <div className="text-center py-12 bg-[var(--bg-sidebar)] rounded-xl border border-[var(--border-color)]">
+                <p className="text-[var(--text-secondary)]">Log more weights to see your trend</p>
+              </div>
+            ) : filtered.length > 1 ? (
+              <div className="relative w-full h-64 bg-[var(--bg-sidebar)] rounded-xl overflow-hidden border border-[var(--border-color)]">
+                <svg className="w-full h-full" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+                  {/* Grid Lines */}
+                  {[0, 1, 2, 3, 4].map(i => (
+                    <line
+                      key={i}
+                      x1={paddingX}
+                      y1={yScale(minWeight + (maxWeight - minWeight) * (i / 4))}
+                      x2={width - paddingX}
+                      y2={yScale(minWeight + (maxWeight - minWeight) * (i / 4))}
+                      stroke="var(--border-color)"
+                      strokeWidth={1}
+                      strokeDasharray="4 4"
+                    />
+                  ))}
+                  
+                  {/* Y-Axis Labels */}
+                  {[0, 1, 2, 3, 4].map(i => {
+                    const value = minWeight + (maxWeight - minWeight) * (i / 4);
+                    return (
+                      <text
+                        key={`label-${i}`}
+                        x={paddingX - 10}
+                        y={yScale(value) + 4}
+                        textAnchor="end"
+                        className="text-xs fill-[var(--text-secondary)]"
+                      >
+                        {value.toFixed(1)}
+                      </text>
+                    );
+                  })}
+
                   <motion.path 
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     d={pathD} 
                     fill="none" 
-                    stroke="#3FAE71" 
-                    strokeWidth="2" 
+                    stroke="var(--accent-primary)" 
+                    strokeWidth="4" 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
                   />
                   
+                  {/* Data Points */}
                   {filtered.map((s, i) => {
-                    const x = filtered.length === 1 ? 50 : (i / (filtered.length - 1)) * 100
-                    const normalizedWeight = ((s.weight || 0) - minWeight) / (maxWeight - minWeight || 1)
-                    const y = 90 - (normalizedWeight * 80)
+                    const x = paddingX + (i / (filtered.length - 1)) * (width - 2 * paddingX);
+                    const y = yScale(s.weight || 0);
                     return (
-                      <circle key={i} cx={x} cy={y} r="1.5" fill="#3FAE71" />
+                      <circle
+                        key={i}
+                        cx={x}
+                        cy={y}
+                        r={6}
+                        fill="var(--accent-primary)"
+                        stroke="var(--card-bg)"
+                        strokeWidth={2}
+                      />
                     )
                   })}
                 </svg>
                 
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between text-xs text-text-secondary font-medium">
+                <div className="absolute bottom-1 left-0 right-0 px-[60px] flex justify-between text-xs text-text-secondary font-medium">
                   {filtered.length > 0 && <span>{new Date(filtered[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric'})}</span>}
                   {filtered.length > 1 && <span>{new Date(filtered[filtered.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric'})}</span>}
                 </div>

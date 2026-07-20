@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { LoadingSkeleton } from "@/components/ui/states"
 import { getWorkouts, createWorkout } from "@/server/actions/workouts"
 import { Workout } from "@/types/database"
+import { WorkoutTimer } from "@/components/workout/WorkoutTimer"
 
 export default function WorkoutsPage() {
   const [workouts, setWorkouts] = useState<Workout[]>([])
@@ -20,6 +21,38 @@ export default function WorkoutsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newType, setNewType] = useState("")
   const [newDuration, setNewDuration] = useState("")
+  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null)
+
+  const handleCompleteWorkout = async (actualDurationSeconds: number) => {
+    if (!activeWorkout) return;
+    
+    if (actualDurationSeconds < 60) {
+      alert('Workout must be at least 1 minute long.')
+      return
+    }
+
+    const actualDurationMin = Math.round(actualDurationSeconds / 60);
+    const maxDuration = (activeWorkout?.duration_min || 60) + 30;
+    const finalDuration = Math.min(actualDurationMin, maxDuration);
+
+    console.log('4. Timer completed, duration:', actualDurationSeconds)
+    console.log('5. Creating workout with duration:', finalDuration)
+    setIsSubmitting(true);
+    try {
+      const res = await createWorkout({
+        type: activeWorkout.type,
+        duration_min: finalDuration,
+        date: new Date().toISOString().split('T')[0],
+        exercises: activeWorkout.exercises || [],
+        intensity: activeWorkout.intensity || 'Medium',
+        notes: null
+      });
+      if (res.success) loadWorkouts();
+    } finally {
+      setIsSubmitting(false);
+      setActiveWorkout(null);
+    }
+  };
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   const last7DaysWorkouts = workouts.filter(w => new Date(w.date) >= sevenDaysAgo)
@@ -152,6 +185,15 @@ export default function WorkoutsPage() {
         </div>
       )}
 
+      {activeWorkout && (
+        <WorkoutTimer
+          workoutName={activeWorkout.type}
+          estimatedDuration={activeWorkout.duration_min}
+          onComplete={handleCompleteWorkout}
+          onCancel={() => setActiveWorkout(null)}
+        />
+      )}
+
       {loading ? (
         <LoadingSkeleton />
       ) : error ? (
@@ -162,18 +204,6 @@ export default function WorkoutsPage() {
             className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm"
           >
             Retry
-          </button>
-        </div>
-      ) : workouts.length === 0 ? (
-        <div className="bg-[var(--card-bg)] rounded-2xl p-8 text-center border border-[var(--border-color)]">
-          <p className="text-[var(--text-secondary)] mb-4">
-            No workouts yet
-          </p>
-          <button 
-            onClick={() => setShowModal(true)}
-            className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-full inline-block"
-          >
-            Create Workout
           </button>
         </div>
       ) : (
@@ -189,28 +219,29 @@ export default function WorkoutsPage() {
                 <p className="text-text-secondary mb-8 max-w-md">
                   Estimated time: {workouts[0]?.duration_min || 45} minutes. Intensity: {workouts[0]?.intensity || "Medium"}.
                 </p>
-                <Button className="gap-2 px-8" onClick={async () => {
+                <Button className="gap-2 px-8" onClick={() => {
+                  console.log('1. Button clicked')
                   if (hasWorkoutToday) {
                     alert("You already logged a workout today.")
                     return
                   }
                   if (workouts.length > 0) {
-                    setIsSubmitting(true)
-                    try {
-                      const res = await createWorkout({
-                        type: workouts[0].type,
-                        duration_min: workouts[0].duration_min,
-                        date: new Date().toISOString(),
-                        exercises: workouts[0].exercises || [],
-                        intensity: workouts[0].intensity || 'Medium',
-                        notes: null
-                      })
-                      if (res.success) loadWorkouts()
-                    } finally {
-                      setIsSubmitting(false)
-                    }
+                    console.log('2. Setting active workout:', workouts[0])
+                    console.log('3. Timer opened')
+                    setActiveWorkout(workouts[0])
                   } else {
-                    setShowModal(true)
+                    console.log('2. Setting active workout (default)')
+                    console.log('3. Timer opened')
+                    setActiveWorkout({
+                      id: 'new',
+                      user_id: 'user_1',
+                      type: 'Full Body Workout',
+                      duration_min: 45,
+                      date: new Date().toISOString(),
+                      exercises: [],
+                      intensity: 'Medium',
+                      notes: null
+                    })
                   }
                 }}>
                   <Play className="w-4 h-4 fill-current" /> {isSubmitting ? "Starting..." : "Start Workout"}

@@ -108,7 +108,7 @@ export default function LandingPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
-          className="mb-32"
+          className="mb-32 pt-24 pb-16"
         >
           <div className="text-center mb-16">
             <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">How It Works</h2>
@@ -142,7 +142,7 @@ export default function LandingPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
-          className="mb-20"
+          className="mb-20 pt-24 pb-16"
         >
           <div className="text-center mb-16">
             <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4">Features</h2>

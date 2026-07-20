@@ -51,6 +51,9 @@ export default function DashboardPage() {
   const [calories, setCalories] = useState(0)
   const [workoutsCount, setWorkoutsCount] = useState(0)
   const [habitsData, setHabitsData] = useState<{name: string, completed_today: boolean}[]>([])
+  const [meals, setMeals] = useState<unknown[]>([])
+  const [workouts, setWorkouts] = useState<unknown[]>([])
+  const [habits, setHabits] = useState<unknown[]>([])
 
   useEffect(() => {
     async function loadData() {
@@ -68,6 +71,10 @@ export default function DashboardPage() {
         const meals = mealsRes.data || []
         const workouts = workoutsRes.data || []
         const habits = habitsRes.data || []
+
+        setMeals(meals)
+        setWorkouts(workouts)
+        setHabits(habits)
 
         const totalCals = meals.reduce((sum, m) => sum + (m.calories_estimate || 0), 0)
         setCalories(totalCals)
@@ -186,58 +193,88 @@ export default function DashboardPage() {
       >
         {/* Stat Card 1: Calories */}
         <motion.div variants={item}>
-          <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
-            <CardContent className="p-6 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] flex items-center justify-center mb-4">
-                <Flame className="w-6 h-6" />
-              </div>
-              <h3 className="text-sm font-medium text-text-secondary mb-1">Calories</h3>
-              <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
-                <CountUp end={calories} /> <span className="text-base text-text-secondary font-sans font-normal">/ 2400</span>
-              </div>
-              <div className="text-xs font-medium px-3 py-1 bg-panel-accent/30 text-teal-800 rounded-full mt-auto">
-                Goal: Weight Loss
-              </div>
-            </CardContent>
-          </Card>
+          {meals.length === 0 ? (
+            <div className="bg-[var(--card-bg)] rounded-3xl p-6 border border-[var(--border-color)] text-center h-full flex flex-col items-center justify-center">
+              <p className="text-[var(--text-secondary)] mb-2">No data yet</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-4">Start tracking to see your progress</p>
+              <Link href="/meals" className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm">
+                Get Started
+              </Link>
+            </div>
+          ) : (
+            <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
+              <CardContent className="p-6 flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] flex items-center justify-center mb-4">
+                  <Flame className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-medium text-text-secondary mb-1">Calories</h3>
+                <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
+                  <CountUp end={calories} /> <span className="text-base text-text-secondary font-sans font-normal">/ 2400</span>
+                </div>
+                <div className="text-xs font-medium px-3 py-1 bg-panel-accent/30 text-teal-800 rounded-full mt-auto">
+                  Goal: Weight Loss
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
 
         {/* Stat Card 2: Workouts */}
         <motion.div variants={item}>
-          <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
-            <CardContent className="p-6 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-[var(--bg-panel-accent)]/50 text-[var(--text-primary)] flex items-center justify-center mb-4">
-                <Target className="w-6 h-6" />
-              </div>
-              <h3 className="text-sm font-medium text-text-secondary mb-1">Workouts</h3>
-              <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
-                <CountUp end={workoutsCount} /> <span className="text-base text-text-secondary font-sans font-normal">/ 5 days</span>
-              </div>
-              <div className="w-full mt-auto pt-4 flex gap-1 h-8 items-end justify-center">
-                {[1, 1, 1, 1, 0, 0, 0].map((active, i) => (
-                  <div key={i} className={`w-full rounded-sm ${active ? 'bg-[var(--bg-panel-accent)] h-full' : 'bg-[var(--border-color)] h-1/3'}`} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {workouts.length === 0 ? (
+            <div className="bg-[var(--card-bg)] rounded-3xl p-6 border border-[var(--border-color)] text-center h-full flex flex-col items-center justify-center">
+              <p className="text-[var(--text-secondary)] mb-2">No data yet</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-4">Start tracking to see your progress</p>
+              <Link href="/workouts" className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm">
+                Get Started
+              </Link>
+            </div>
+          ) : (
+            <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
+              <CardContent className="p-6 flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-[var(--bg-panel-accent)]/50 text-[var(--text-primary)] flex items-center justify-center mb-4">
+                  <Target className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-medium text-text-secondary mb-1">Workouts</h3>
+                <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
+                  <CountUp end={workoutsCount} /> <span className="text-base text-text-secondary font-sans font-normal">/ 5 days</span>
+                </div>
+                <div className="w-full mt-auto pt-4 flex gap-1 h-8 items-end justify-center">
+                  {[1, 1, 1, 1, 0, 0, 0].map((active, i) => (
+                    <div key={i} className={`w-full rounded-sm ${active ? 'bg-[var(--bg-panel-accent)] h-full' : 'bg-[var(--border-color)] h-1/3'}`} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
 
         {/* Stat Card 3: Weight */}
         <motion.div variants={item}>
-          <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
-            <CardContent className="p-6 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-[var(--status-positive)]/10 text-[var(--status-positive)] flex items-center justify-center mb-4">
-                <Trophy className="w-6 h-6" />
-              </div>
-              <h3 className="text-sm font-medium text-text-secondary mb-1">Weight Progress</h3>
-              <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
-                -<CountUp end={0} /><span className="font-sans">.0</span> <span className="text-base text-text-secondary font-sans font-normal">lbs</span>
-              </div>
-              <div className="text-xs font-medium text-status-positive mt-auto flex items-center gap-1">
-                <ArrowUpRight className="w-3 h-3 rotate-90" /> On Track
-              </div>
-            </CardContent>
-          </Card>
+          {habits.length === 0 ? (
+            <div className="bg-[var(--card-bg)] rounded-3xl p-6 border border-[var(--border-color)] text-center h-full flex flex-col items-center justify-center">
+              <p className="text-[var(--text-secondary)] mb-2">No data yet</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-4">Start tracking to see your progress</p>
+              <Link href="/habits" className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-full text-sm">
+                Get Started
+              </Link>
+            </div>
+          ) : (
+            <Card className="h-full hover:border-panel-accent/50 transition-colors cursor-default">
+              <CardContent className="p-6 flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-[var(--status-positive)]/10 text-[var(--status-positive)] flex items-center justify-center mb-4">
+                  <Trophy className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-medium text-text-secondary mb-1">Weight Progress</h3>
+                <div className="font-fredoka text-3xl font-bold text-text-primary mb-2">
+                  -<CountUp end={0} /><span className="font-sans">.0</span> <span className="text-base text-text-secondary font-sans font-normal">lbs</span>
+                </div>
+                <div className="text-xs font-medium text-status-positive mt-auto flex items-center gap-1">
+                  <ArrowUpRight className="w-3 h-3 rotate-90" /> On Track
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
       </motion.div>
       
