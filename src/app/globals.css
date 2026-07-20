@@ -21,17 +21,26 @@
     --border-color: rgba(155, 155, 155, 0.2);
   }
 
-  html.dark {
+  /* Dark mode overrides */
+  html.dark,
+  [data-theme="dark"] {
     --bg-canvas: #1A1A1A;
-    --bg-sidebar: #242424;
+    --bg-sidebar: #1e1e1e;
     --bg-panel-accent: #2A3F3D;
-    --text-primary: #F7F3EE;
-    --text-secondary: #888888;
+    
+    /* THESE ARE THE CRITICAL FIXES */
+    --text-primary: #ffffff !important;      /* MUST be white in dark mode */
+    --text-secondary: #a0a0a0 !important;    /* Light gray */
     --card-bg: #2A2A2A;
     --accent-primary: #EF5B4B;
     --status-positive: #3FAE71;
     --status-warning: #E0A020;
-    --border-color: rgba(155, 155, 155, 0.3);
+    --border-color: #3a3a3a;
+  }
+
+  .dark {
+    --text-primary: #ffffff !important;
+    --text-secondary: #a0a0a0 !important;
   }
 
   body, .theme-transition {

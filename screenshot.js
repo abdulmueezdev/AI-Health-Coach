@@ -1,53 +1,47 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const fs = require('fs');
 
 (async () => {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  const browser = await puppeteer.launch({ 
+    headless: 'new', 
+    args: ['--no-sandbox'],
+    executablePath: '/usr/bin/google-chrome' 
+  });
+  
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
-
-  console.log('Testing Landing...');
-  await page.goto('http://localhost:3001/');
-  await page.screenshot({ path: 'screenshots/landing.png' });
-
-  console.log('Testing Signup...');
+  
   await page.goto('http://localhost:3001/signup');
-  await page.screenshot({ path: 'screenshots/signup.png' });
-
-  console.log('Filling signup form...');
-  await page.type('input[name="email"]', 'testuser2@example.com');
+  await new Promise(r => setTimeout(r, 2000));
+  
+  const randomEmail = `test${Date.now()}@test.com`;
+  
+  await page.type('input[name="email"]', randomEmail);
   await page.type('input[name="password"]', 'password123');
   await page.click('button[type="submit"]');
   
-  await page.waitForNavigation({ waitUntil: 'networkidle0' });
+  await new Promise(r => setTimeout(r, 4000));
   
-  console.log('Testing Dashboard...');
-  // We should be on /dashboard now
-  await page.screenshot({ path: 'screenshots/dashboard.png' });
-
-  console.log('Testing Meals...');
-  await page.goto('http://localhost:3001/meals');
-  await page.screenshot({ path: 'screenshots/meals.png' });
-
-  console.log('Testing Workouts...');
-  await page.goto('http://localhost:3001/workouts');
-  await page.screenshot({ path: 'screenshots/workouts.png' });
-
-  console.log('Testing Habits...');
-  await page.goto('http://localhost:3001/habits');
-  await page.screenshot({ path: 'screenshots/habits.png' });
-
-  console.log('Testing Progress...');
-  await page.goto('http://localhost:3001/progress');
-  await page.screenshot({ path: 'screenshots/progress.png' });
-
-  console.log('Testing Coach...');
-  await page.goto('http://localhost:3001/coach');
-  await page.screenshot({ path: 'screenshots/coach.png' });
-
-  console.log('Testing Settings...');
-  await page.goto('http://localhost:3001/settings');
-  await page.screenshot({ path: 'screenshots/settings.png' });
-
+  await page.goto('http://localhost:3001/dashboard');
+  
+  await new Promise(r => setTimeout(r, 5000));
+  
+  await page.screenshot({ path: '/home/alucard/.gemini/antigravity/brain/e4fa1729-f203-4ab8-b386-95aa534b7deb/dashboard_empty_cards_v1.0.6.1.png' });
+  console.log("Saved dashboard screenshot");
+  
+  const buttons = await page.$$('button');
+  for (const b of buttons) {
+    const text = await page.evaluate(el => el.textContent, b);
+    if (text && text.includes('15m Outdoor walk')) {
+      await b.click();
+      console.log("Clicked 15m outdoor walk");
+      break;
+    }
+  }
+  
+  await new Promise(r => setTimeout(r, 4000));
+  await page.screenshot({ path: '/home/alucard/.gemini/antigravity/brain/e4fa1729-f203-4ab8-b386-95aa534b7deb/workout_created_v1.0.6.1.png' });
+  console.log("Saved workout screenshot");
+  
   await browser.close();
-  console.log('Done!');
 })();

@@ -13,10 +13,16 @@ interface Reminder {
 
 export function useReminders() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Mark as client-side only
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Load reminders from localStorage on mount
   useEffect(() => {
+    if (!isClient) return;
     const saved = localStorage.getItem('vitalis_reminders');
     if (saved) {
       try {
@@ -25,15 +31,13 @@ export function useReminders() {
         console.error('Failed to parse reminders', e);
       }
     }
-    setLoaded(true);
-  }, []);
+  }, [isClient]);
 
   // Save to localStorage when changed
   useEffect(() => {
-    if (loaded) {
-      localStorage.setItem('vitalis_reminders', JSON.stringify(reminders));
-    }
-  }, [reminders, loaded]);
+    if (!isClient) return;
+    localStorage.setItem('vitalis_reminders', JSON.stringify(reminders));
+  }, [reminders, isClient]);
 
   // Check reminders every minute
   useEffect(() => {
