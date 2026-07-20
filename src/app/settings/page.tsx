@@ -251,7 +251,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-[var(--border-color)]">
-                  <div className="text-sm text-status-positive font-medium h-5">
+                  <div className="text-sm text-[var(--status-positive)] font-medium h-5">
                     {saved && "Settings saved successfully."}
                   </div>
                   <Button type="submit" disabled={loading} className="gap-2">
@@ -273,8 +273,8 @@ export default function SettingsPage() {
             </h2>
             <div className="flex items-center justify-between rounded-card bg-[var(--bg-sidebar)] p-4">
               <div>
-                <p className="font-medium text-text-primary">Theme</p>
-                <p className="text-sm text-text-secondary">Choose your preferred appearance</p>
+                <p className="font-medium text-[var(--text-primary)]">Theme</p>
+                <p className="text-sm text-[var(--text-secondary)]">Choose your preferred appearance</p>
               </div>
               <ThemeToggle />
             </div>
@@ -291,8 +291,8 @@ export default function SettingsPage() {
           <div className="bg-[var(--card-bg)] rounded-3xl p-6 border border-[var(--border-color)]">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-bold text-text-primary">Sign Out</h4>
-                <p className="text-sm text-text-secondary">Log out of your current session on this device.</p>
+                <h4 className="font-bold text-[var(--text-primary)]">Sign Out</h4>
+                <p className="text-sm text-[var(--text-secondary)]">Log out of your current session on this device.</p>
               </div>
               <Button type="button" variant="outline" className="bg-[var(--card-bg)] border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-panel-accent)]/20 gap-2" onClick={handleLogout}>
                 <LogOut className="w-4 h-4" /> Sign Out

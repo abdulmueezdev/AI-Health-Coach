@@ -210,10 +210,17 @@ export default function DashboardPage() {
     }
   }
 
-  const today = new Date().toISOString().split('T')[0];
-  const mealsToday = meals?.filter(m => m.logged_at?.startsWith(today)) || [];
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const now = new Date();
+  
+  const mealsToday = meals?.filter(m => {
+    if (!m.logged_at) return false;
+    const d = new Date(m.logged_at);
+    return d >= todayStart && d <= now;
+  }) || [];
   const caloriesToday = mealsToday.reduce((sum, m) => sum + (m.calories_estimate || 0), 0);
-  const calorieGoal = (profile as any)?.target_calories || 2000;
+  const calorieGoal = (profile as any)?.target_calories || 2500;
 
   const startOfWeek = new Date();
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
@@ -294,16 +301,16 @@ export default function DashboardPage() {
         className="mb-8 sm:mb-10"
       >
         <h1 className="font-playfair text-3xl sm:text-4xl font-bold mb-2">
-          Good Morning, {profile?.display_name || user?.user_metadata?.display_name || "there"}
+          Good Morning, {profile?.display_name || user?.user_metadata?.display_name || "friend"}
         </h1>
         {!loading && !error && (
           <div className="text-[var(--text-secondary)] font-sans text-base sm:text-lg">
             <p className="text-[var(--text-secondary)]">
-              {workoutsThisWeek.length > 0 
-                ? `You're crushing it! ${workoutsThisWeek.length} workouts this week.` 
-                : mealsToday.length > 0 
-                  ? `Great start! ${mealsToday.length} meals logged today.`
-                  : "Let's get started! Log your first activity."
+              {workoutsThisWeek.length >= 3 
+                ? `Crushing it! ${workoutsThisWeek.length} workouts this week.` 
+                : workoutsThisWeek.length >= 1 
+                  ? `Great start! ${workoutsThisWeek.length} workouts this week.`
+                  : "Let's get moving! Log your first activity."
               }
             </p>
           </div>
