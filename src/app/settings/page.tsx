@@ -1,20 +1,20 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import SettingsClient from './settings-client';
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import SettingsClient from './settings-client'
 
 export default async function SettingsPage() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    // redirect('/login');
+    redirect('/login')
   }
   
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('user_id', user?.id)
-    .single();
+    .eq('user_id', user.id)
+    .single()
     
-  return <SettingsClient initialProfile={profile} user={user} />;
+  return <SettingsClient initialProfile={profile} user={user} />
 }
