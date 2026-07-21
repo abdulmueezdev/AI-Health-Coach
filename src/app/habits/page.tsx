@@ -45,6 +45,12 @@ export default function HabitsPage() {
     loadHabits()
   }, [])
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowModal(false) }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [])
+
   const handleCreateHabit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newHabitName || !newHabitFreq) return
@@ -155,52 +161,62 @@ export default function HabitsPage() {
         </Button>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
           >
-            <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)] flex items-center justify-between">
-              <h2 className="font-playfair text-2xl font-bold">New Habit</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
-                <Plus className="w-5 h-5 rotate-45" />
-              </button>
-            </div>
-            <form onSubmit={handleCreateHabit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Habit Name</label>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="bg-[#2a2a2a] rounded-2xl p-6 w-full max-w-md mx-4 border border-[#3a3a3a] shadow-2xl relative"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-playfair text-2xl font-bold text-white">New Habit</h2>
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                  <Plus className="w-6 h-6 rotate-45" />
+                </button>
+              </div>
+              <form onSubmit={handleCreateHabit} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Habit Name</label>
                   <input 
                     type="text" 
-                    className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" 
+                    className="w-full bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 placeholder-gray-500 focus:outline-none focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]" 
                     value={newHabitName} 
-                  onChange={(e) => setNewHabitName(e.target.value)} 
-                  placeholder="e.g. Drink 2L Water"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Frequency</label>
+                    onChange={(e) => setNewHabitName(e.target.value)} 
+                    placeholder="e.g. Drink 2L Water"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Frequency</label>
                   <select 
-                    className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
+                    className="w-full bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 focus:outline-none focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]"
                     value={newHabitFreq}
-                  onChange={(e) => setNewHabitFreq(e.target.value)}
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                </select>
-              </div>
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1" onClick={() => setShowModal(false)}>Cancel</Button>
-                <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Save Habit"}
-                </Button>
-              </div>
-            </form>
+                    onChange={(e) => setNewHabitFreq(e.target.value)}
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button type="button" className="bg-transparent border border-[#3a3a3a] text-gray-300 hover:bg-[#3a3a3a] rounded-xl px-6 py-2.5 transition-colors flex-1" onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="submit" className="bg-[#EF5B4B] hover:bg-[#d94a3a] text-white rounded-xl px-6 py-2.5 font-medium transition-colors flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? "Saving..." : "Save Habit"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {loading ? (
         <LoadingSkeleton />

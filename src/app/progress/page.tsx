@@ -1,7 +1,7 @@
 "use client"
 export const dynamic = 'force-dynamic'
 
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useUser } from "@/lib/hooks/useUser"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,8 +11,7 @@ import { useState, useEffect } from "react"
 import { LoadingSkeleton } from "@/components/ui/states"
 import { getSnapshots, createSnapshot } from "@/server/actions/progress"
 import { ProgressSnapshot } from "@/types/database"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+
 
 export default function ProgressPage() {
   const { profile } = useUser()
@@ -40,6 +39,12 @@ export default function ProgressPage() {
 
   useEffect(() => {
     loadData()
+  }, [])
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowModal(false) }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
   }, [])
 
   const now = new Date()
@@ -81,7 +86,7 @@ export default function ProgressPage() {
     maxWeight = Math.max(...filtered.map(s => s.weight || 0))
     
     pathD = filtered.map((s, i) => {
-      const x = paddingX + (i / (filtered.length - 1)) * (width - 2 * paddingX);
+      const x = filtered.length === 1 ? width / 2 : paddingX + (i / (filtered.length - 1)) * (width - 2 * paddingX);
       const y = yScale(s.weight || 0);
       return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
     }).join(" ")
@@ -176,11 +181,7 @@ export default function ProgressPage() {
               </div>
             </div>
 
-            {filtered.length === 1 ? (
-              <div className="text-center py-12 bg-[var(--bg-sidebar)] rounded-xl border border-[var(--border-color)]">
-                <p className="text-[var(--text-secondary)]">Log more weights to see your trend</p>
-              </div>
-            ) : filtered.length > 1 ? (
+            {filtered.length >= 1 ? (
               <div className="relative w-full h-64 bg-[var(--bg-sidebar)] rounded-xl overflow-hidden border border-[var(--border-color)]">
                 <svg className="w-full h-full" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
                   {/* Grid Lines */}
@@ -219,7 +220,7 @@ export default function ProgressPage() {
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     d={pathD} 
                     fill="none" 
-                    stroke="var(--accent-primary)" 
+                    stroke="#EF5B4B" 
                     strokeWidth="4" 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
@@ -227,7 +228,7 @@ export default function ProgressPage() {
                   
                   {/* Data Points */}
                   {filtered.map((s, i) => {
-                    const x = paddingX + (i / (filtered.length - 1)) * (width - 2 * paddingX);
+                    const x = filtered.length === 1 ? width / 2 : paddingX + (i / (filtered.length - 1)) * (width - 2 * paddingX);
                     const y = yScale(s.weight || 0);
                     return (
                       <circle
@@ -235,7 +236,7 @@ export default function ProgressPage() {
                         cx={x}
                         cy={y}
                         r={6}
-                        fill="var(--accent-primary)"
+                        fill="#EF5B4B"
                         stroke="var(--card-bg)"
                         strokeWidth={2}
                       />
@@ -258,63 +259,72 @@ export default function ProgressPage() {
       </motion.div>
       )}
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-[var(--card-bg)] w-full max-w-md rounded-xl shadow-xl border border-[var(--border-color)] p-6">
-            <h2 className="text-xl font-bold mb-4">Log Progress</h2>
-            <div className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="weight">Weight (lbs)</Label>
-                <Input 
-                  id="weight" 
-                  type="number" 
-                  step="0.1" 
-                  value={weightInput} 
-                  onChange={(e) => setWeightInput(e.target.value)} 
-                  placeholder="e.g. 185.0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="bodyFat">Body Fat % (optional)</Label>
-                <Input 
-                  id="bodyFat" 
-                  type="number" 
-                  step="0.1" 
-                  value={bodyFatInput} 
-                  onChange={(e) => setBodyFatInput(e.target.value)} 
-                  placeholder="e.g. 15.5"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (optional)</Label>
-                <Input 
-                  id="notes" 
-                  value={notesInput} 
-                  onChange={(e) => setNotesInput(e.target.value)} 
-                  placeholder="How are you feeling?"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-6 py-2 rounded-full bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-panel-accent)]/20 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={isSubmitting || !weightInput}
-                  onClick={handleLogWeight}
-                  className="px-6 py-2 rounded-full bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Saving...' : 'Save Log'}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="bg-[#2a2a2a] rounded-2xl p-6 w-full max-w-md mx-4 border border-[#3a3a3a] shadow-2xl relative"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-playfair text-2xl font-bold text-white">Log Progress</h2>
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                  <Plus className="w-6 h-6 rotate-45" />
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Weight (lbs)</label>
+                  <input 
+                    type="number" 
+                    step="0.1" 
+                    className="w-full bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 placeholder-gray-500 focus:outline-none focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]" 
+                    value={weightInput} 
+                    onChange={(e) => setWeightInput(e.target.value)} 
+                    placeholder="e.g. 185.0"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Body Fat % (optional)</label>
+                  <input 
+                    type="number" 
+                    step="0.1" 
+                    className="w-full bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 placeholder-gray-500 focus:outline-none focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]" 
+                    value={bodyFatInput} 
+                    onChange={(e) => setBodyFatInput(e.target.value)} 
+                    placeholder="e.g. 15.5"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Notes (optional)</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 placeholder-gray-500 focus:outline-none focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]" 
+                    value={notesInput} 
+                    onChange={(e) => setNotesInput(e.target.value)} 
+                    placeholder="How are you feeling?"
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button type="button" className="bg-transparent border border-[#3a3a3a] text-gray-300 hover:bg-[#3a3a3a] rounded-xl px-6 py-2.5 transition-colors flex-1" onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="button" className="bg-[#EF5B4B] hover:bg-[#d94a3a] text-white rounded-xl px-6 py-2.5 font-medium transition-colors flex-1" disabled={isSubmitting || !weightInput} onClick={handleLogWeight}>
+                    {isSubmitting ? "Saving..." : "Save Log"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </DashboardLayout>
   )
 }

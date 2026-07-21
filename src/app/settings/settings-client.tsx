@@ -13,6 +13,9 @@ import { useReminders } from '@/lib/hooks/useReminders';
 import { requestNotificationPermission } from '@/lib/notifications/request-permission';
 import { motion } from "framer-motion";
 import { signOut } from "@/server/actions/auth";
+import { deleteHabit } from "@/server/actions/habits";
+import { deleteWorkout } from "@/server/actions/workouts";
+import { deleteMeal } from "@/server/actions/meals";
 import { useRouter } from "next/navigation";
 
 const RemindersSection = () => {
@@ -146,10 +149,33 @@ const RemindersSection = () => {
   );
 };
 
-export default function SettingsClient({ initialProfile, user }: { initialProfile: any, user: any }) {
+export default function SettingsClient({ 
+  initialProfile, user, habits = [], workouts = [], meals = [] 
+}: { 
+  initialProfile: any, user: any, habits?: any[], workouts?: any[], meals?: any[] 
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  const doDeleteHabit = async (id: string) => {
+    await deleteHabit(id);
+    setConfirmDelete(null);
+    router.refresh();
+  };
+
+  const doDeleteWorkout = async (id: string) => {
+    await deleteWorkout(id);
+    setConfirmDelete(null);
+    router.refresh();
+  };
+
+  const doDeleteMeal = async (id: string) => {
+    await deleteMeal(id);
+    setConfirmDelete(null);
+    router.refresh();
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,6 +284,93 @@ export default function SettingsClient({ initialProfile, user }: { initialProfil
         <motion.div variants={item}>
           {/* REMINDERS CARD */}
           <RemindersSection />
+        </motion.div>
+
+        <motion.div variants={item}>
+          {/* DATA MANAGEMENT CARD */}
+          <div className="bg-white dark:bg-[#2a2a2a] rounded-3xl p-6 border border-gray-200 dark:border-[#3a3a3a]">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Data Management
+            </h2>
+            <div className="space-y-6">
+              
+              {/* Delete Habits */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Your Habits</h3>
+                {habits.length === 0 ? <p className="text-sm text-gray-500">No habits tracked.</p> : (
+                  <div className="space-y-2">
+                    {habits.map((h: any) => (
+                      <div key={h.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#3a3a3a]">
+                        <span className="text-gray-900 dark:text-white text-sm font-medium">{h.name}</span>
+                        {confirmDelete === h.id ? (
+                          <div className="flex gap-2 items-center">
+                            <button type="button" onClick={() => doDeleteHabit(h.id)} className="text-[#EF5B4B] text-sm hover:underline font-medium">Confirm</button>
+                            <button type="button" onClick={() => setConfirmDelete(null)} className="text-gray-500 text-sm hover:underline">Cancel</button>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => setConfirmDelete(h.id)} className="text-[#EF5B4B] hover:text-[#d94a3a] transition-colors p-1">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Delete Workouts */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Recent Workouts</h3>
+                {workouts.length === 0 ? <p className="text-sm text-gray-500">No recent workouts.</p> : (
+                  <div className="space-y-2">
+                    {workouts.map((w: any) => (
+                      <div key={w.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#3a3a3a]">
+                        <div className="flex flex-col">
+                          <span className="text-gray-900 dark:text-white text-sm font-medium">{w.type}</span>
+                          <span className="text-xs text-gray-500">{new Date(w.date).toLocaleDateString()}</span>
+                        </div>
+                        {confirmDelete === w.id ? (
+                          <div className="flex gap-2 items-center">
+                            <button type="button" onClick={() => doDeleteWorkout(w.id)} className="text-[#EF5B4B] text-sm hover:underline font-medium">Confirm</button>
+                            <button type="button" onClick={() => setConfirmDelete(null)} className="text-gray-500 text-sm hover:underline">Cancel</button>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => setConfirmDelete(w.id)} className="text-[#EF5B4B] hover:text-[#d94a3a] transition-colors p-1">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Delete Meals */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Today's Meals</h3>
+                {meals.length === 0 ? <p className="text-sm text-gray-500">No meals logged today.</p> : (
+                  <div className="space-y-2">
+                    {meals.map((m: any) => (
+                      <div key={m.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#3a3a3a]">
+                        <span className="text-gray-900 dark:text-white text-sm font-medium">{m.meal_type || 'Meal'} - {m.calories_estimate} kcal</span>
+                        {confirmDelete === m.id ? (
+                          <div className="flex gap-2 items-center">
+                            <button type="button" onClick={() => doDeleteMeal(m.id)} className="text-[#EF5B4B] text-sm hover:underline font-medium">Confirm</button>
+                            <button type="button" onClick={() => setConfirmDelete(null)} className="text-gray-500 text-sm hover:underline">Cancel</button>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => setConfirmDelete(m.id)} className="text-[#EF5B4B] hover:text-[#d94a3a] transition-colors p-1">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
         </motion.div>
 
         <motion.div variants={item}>

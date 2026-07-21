@@ -1,7 +1,7 @@
 "use client"
 export const dynamic = 'force-dynamic'
 
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -76,6 +76,12 @@ export default function WorkoutsPage() {
     loadWorkouts()
   }, [])
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowModal(false) }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [])
+
   const handleCreatePlan = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newType || !newDuration) return
@@ -138,52 +144,62 @@ export default function WorkoutsPage() {
         </Button>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-[var(--card-bg)] rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative border border-[var(--border-color)]"
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
           >
-            <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between">
-              <h2 className="font-playfair text-2xl font-bold">New Plan</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleCreatePlan} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Workout Type</label>
-                <input 
-                  type="text" 
-                  className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" 
-                  value={newType} 
-                  onChange={(e) => setNewType(e.target.value)} 
-                  placeholder="e.g. Upper Body Power"
-                  required
-                />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="bg-[#2a2a2a] rounded-2xl p-6 w-full max-w-md mx-4 border border-[#3a3a3a] shadow-2xl relative"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-playfair text-2xl font-bold text-white">New Plan</h2>
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                  <X className="w-6 h-6" />
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Duration (min)</label>
-                <input 
-                  type="number" 
-                  className="w-full h-12 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-sidebar)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" 
-                  value={newDuration} 
-                  onChange={(e) => setNewDuration(e.target.value)} 
-                  placeholder="45"
-                  required
-                />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" className="flex-1" onClick={() => setShowModal(false)}>Cancel</Button>
-                <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Save Plan"}
-                </Button>
-              </div>
-            </form>
+              <form onSubmit={handleCreatePlan} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Workout Type</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 placeholder-gray-500 focus:outline-none focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]" 
+                    value={newType} 
+                    onChange={(e) => setNewType(e.target.value)} 
+                    placeholder="e.g. Upper Body Power"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Duration (min)</label>
+                  <input 
+                    type="number" 
+                    className="w-full bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 placeholder-gray-500 focus:outline-none focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]" 
+                    value={newDuration} 
+                    onChange={(e) => setNewDuration(e.target.value)} 
+                    placeholder="45"
+                    required
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button type="button" className="bg-transparent border border-[#3a3a3a] text-gray-300 hover:bg-[#3a3a3a] rounded-xl px-6 py-2.5 transition-colors flex-1" onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="submit" className="bg-[#EF5B4B] hover:bg-[#d94a3a] text-white rounded-xl px-6 py-2.5 font-medium transition-colors flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? "Saving..." : "Save Plan"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {activeWorkout && (
         <WorkoutTimer

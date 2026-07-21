@@ -247,6 +247,7 @@ export default function MealsPage() {
                     <div className="flex items-center gap-4">
                       {meal.photo_url && (
                         <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-[var(--bg-sidebar)]">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={meal.photo_url} alt={meal.description} className="w-full h-full object-cover" />
                         </div>
                       )}

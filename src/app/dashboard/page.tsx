@@ -15,9 +15,9 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, goal_type, starting_weight, target_weight, target_calories')
+    .select('display_name, goal_type, starting_weight, target_weight, target_calories, activity_level, height')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   console.log('PROFILE DEBUG:', { 
     userId: user.id, 
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
           <span className="font-playfair font-bold">V</span>
         </div>
         <h3 className="font-playfair text-lg font-bold">
-          {totalStreak > 5 ? "You&apos;re on fire! 🔥" : workoutsThisWeek.length >= 3 ? "You&apos;re crushing it!" : "Let&apos;s build momentum!"}
+          {totalStreak > 5 ? "You're on fire! 🔥" : workoutsThisWeek.length >= 3 ? "You're crushing it!" : "Let's build momentum!"}
         </h3>
       </div>
       
