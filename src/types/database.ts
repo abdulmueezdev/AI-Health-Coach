@@ -24,7 +24,7 @@ export interface Meal {
   photo_url: string | null
   description: string
   calories_estimate: number
-  macros: { protein: number; carbs: number; fat: number }
+  macros: { protein: number; carbs: number; fat: number; portion_estimate?: string; confidence?: string; meal_type?: string }
   source: 'photo' | 'manual'
 }
 

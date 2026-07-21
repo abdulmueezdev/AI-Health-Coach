@@ -66,3 +66,25 @@ export async function analyzeImage(imageBase64: string): Promise<{
     throw new Error('Failed to parse Gemini response as JSON: ' + cleanedText)
   }
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function analyzeImageFromUrl(url: string, prompt: string): Promise<any> {
+  const model = getModel()
+  const res = await fetch(url)
+  const arrayBuffer = await res.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+  const base64Data = buffer.toString('base64')
+  
+  const mimeType = res.headers.get('content-type') || 'image/jpeg'
+
+  const imageParts = [
+    {
+      inlineData: {
+        data: base64Data,
+        mimeType
+      }
+    }
+  ]
+
+  const result = await model.generateContent([prompt, ...imageParts])
+  return result
+}
