@@ -60,8 +60,7 @@ export default function WorkoutsPage() {
   const uniqueDaysCount = new Set(last7DaysWorkouts.map(w => new Date(w.date).toDateString())).size
   const weeklyProgress = Math.min(uniqueDaysCount, 5)
 
-  const todayStr = new Date().toDateString()
-  // const hasWorkoutToday = workouts.some(w => new Date(w.date).toDateString() === todayStr)
+
 
   async function loadWorkouts() {
     const res = await getWorkouts()

@@ -56,8 +56,8 @@ export function WorkoutTimer({ workoutName, estimatedDuration, onComplete, onCan
         return next;
       });
     }, 1000);
-    return () => clearInterval(interval);
-  }, [isRunning, mode, totalSeconds]);
+      return () => clearInterval(interval);
+  }, [isRunning, mode, totalSeconds, onComplete]);
   
   const handleComplete = () => {
     playChime();
