@@ -2,7 +2,7 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -159,22 +159,51 @@ export default function SettingsClient({
   const [saved, setSaved] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
+  const [localHabits, setLocalHabits] = useState(habits);
+  const [localWorkouts, setLocalWorkouts] = useState(workouts);
+  const [localMeals, setLocalMeals] = useState(meals);
+
+  // Update local state if props change (from router.refresh)
+  useEffect(() => {
+    setLocalHabits(habits);
+    setLocalWorkouts(workouts);
+    setLocalMeals(meals);
+  }, [habits, workouts, meals]);
+
   const doDeleteHabit = async (id: string) => {
-    await deleteHabit(id);
-    setConfirmDelete(null);
-    router.refresh();
+    try {
+      await deleteHabit(id);
+      setLocalHabits(prev => prev.filter(h => h.id !== id));
+      setConfirmDelete(null);
+      router.refresh();
+    } catch (e) {
+      console.error('Delete failed:', e);
+      alert('Failed to delete. Check console.');
+    }
   };
 
   const doDeleteWorkout = async (id: string) => {
-    await deleteWorkout(id);
-    setConfirmDelete(null);
-    router.refresh();
+    try {
+      await deleteWorkout(id);
+      setLocalWorkouts(prev => prev.filter(w => w.id !== id));
+      setConfirmDelete(null);
+      router.refresh();
+    } catch (e) {
+      console.error('Delete failed:', e);
+      alert('Failed to delete. Check console.');
+    }
   };
 
   const doDeleteMeal = async (id: string) => {
-    await deleteMeal(id);
-    setConfirmDelete(null);
-    router.refresh();
+    try {
+      await deleteMeal(id);
+      setLocalMeals(prev => prev.filter(m => m.id !== id));
+      setConfirmDelete(null);
+      router.refresh();
+    } catch (e) {
+      console.error('Delete failed:', e);
+      alert('Failed to delete. Check console.');
+    }
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -297,9 +326,9 @@ export default function SettingsClient({
               {/* Delete Habits */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Your Habits</h3>
-                {habits.length === 0 ? <p className="text-sm text-gray-500">No habits tracked.</p> : (
+                {localHabits.length === 0 ? <p className="text-sm text-gray-500">No habits tracked.</p> : (
                   <div className="space-y-2">
-                    {habits.map((h: any) => (
+                    {localHabits.map((h: any) => (
                       <div key={h.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#3a3a3a]">
                         <span className="text-gray-900 dark:text-white text-sm font-medium">{h.name}</span>
                         {confirmDelete === h.id ? (
@@ -321,9 +350,9 @@ export default function SettingsClient({
               {/* Delete Workouts */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Recent Workouts</h3>
-                {workouts.length === 0 ? <p className="text-sm text-gray-500">No recent workouts.</p> : (
+                {localWorkouts.length === 0 ? <p className="text-sm text-gray-500">No recent workouts.</p> : (
                   <div className="space-y-2">
-                    {workouts.map((w: any) => (
+                    {localWorkouts.map((w: any) => (
                       <div key={w.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#3a3a3a]">
                         <div className="flex flex-col">
                           <span className="text-gray-900 dark:text-white text-sm font-medium">{w.type}</span>
@@ -348,9 +377,9 @@ export default function SettingsClient({
               {/* Delete Meals */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Today's Meals</h3>
-                {meals.length === 0 ? <p className="text-sm text-gray-500">No meals logged today.</p> : (
+                {localMeals.length === 0 ? <p className="text-sm text-gray-500">No meals logged today.</p> : (
                   <div className="space-y-2">
-                    {meals.map((m: any) => (
+                    {localMeals.map((m: any) => (
                       <div key={m.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#3a3a3a]">
                         <span className="text-gray-900 dark:text-white text-sm font-medium">{m.meal_type || 'Meal'} - {m.calories_estimate} kcal</span>
                         {confirmDelete === m.id ? (

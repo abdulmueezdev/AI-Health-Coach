@@ -48,6 +48,10 @@ export function WorkoutTimer({ workoutName, estimatedDuration, onComplete, onCan
         const next = e + 1;
         if (mode === 'down' && next === totalSeconds) {
           playChime();
+          setIsRunning(false); // Stop the timer
+          setTimeout(() => {
+            onComplete(next); // Call onComplete automatically
+          }, 100);
         }
         return next;
       });

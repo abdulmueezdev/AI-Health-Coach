@@ -13,17 +13,24 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, goal_type, starting_weight, target_weight, target_calories, activity_level, height')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  let profile = null
+  let displayName = null
+  try {
+    const { data } = await supabase
+      .from('profiles')
+      .select('display_name, goal_type, starting_weight, target_weight, target_calories, activity_level, height')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    profile = data
+    displayName = profile?.display_name
+  } catch (e) {
+    console.error('Profile fetch failed:', e)
+  }
 
-  console.log('PROFILE DEBUG:', { 
-    userId: user.id, 
-    displayName: profile?.display_name,
-    email: user?.email 
-  })
+  // HARD FALLBACK CHAIN
+  const name = displayName || user.user_metadata?.display_name || user.email?.split('@')[0] || 'friend'
+
+  console.log('NAME RESOLUTION:', { displayName, email: user.email, finalName: name })
 
   // Calories Today
   const today = new Date().toISOString().split('T')[0]
@@ -99,8 +106,6 @@ export default async function DashboardPage() {
       </div>
     </div>
   )
-
-  const name = profile?.display_name || user?.email?.split('@')[0] || 'friend'
 
   return (
     <DashboardLayout insightPanel={insightPanel}>

@@ -21,6 +21,7 @@ export default function WorkoutsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newType, setNewType] = useState("")
   const [newDuration, setNewDuration] = useState("")
+  const [newIntensity, setNewIntensity] = useState("Medium")
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null)
 
   const handleCompleteWorkout = async (actualDurationSeconds: number) => {
@@ -60,7 +61,7 @@ export default function WorkoutsPage() {
   const weeklyProgress = Math.min(uniqueDaysCount, 5)
 
   const todayStr = new Date().toDateString()
-  const hasWorkoutToday = workouts.some(w => new Date(w.date).toDateString() === todayStr)
+  // const hasWorkoutToday = workouts.some(w => new Date(w.date).toDateString() === todayStr)
 
   async function loadWorkouts() {
     const res = await getWorkouts()
@@ -86,20 +87,16 @@ export default function WorkoutsPage() {
     e.preventDefault()
     if (!newType || !newDuration) return
     
-    if (hasWorkoutToday) {
-      alert("You already logged a workout today.")
-      setShowModal(false)
-      return
-    }
+
 
     setIsSubmitting(true)
     try {
       const res = await createWorkout({
         type: newType,
         duration_min: parseInt(newDuration, 10),
-        date: new Date().toISOString(),
+        date: new Date().toISOString().split('T')[0],
         exercises: [],
-        intensity: 'Medium',
+        intensity: newIntensity,
         notes: null
       })
       if (res.success) {
@@ -189,6 +186,18 @@ export default function WorkoutsPage() {
                     required
                   />
                 </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-1.5 block">Intensity</label>
+                  <select 
+                    value={newIntensity} 
+                    onChange={(e) => setNewIntensity(e.target.value)}
+                    className="bg-[#1e1e1e] border border-[#3a3a3a] rounded-xl text-white px-4 py-2.5 w-full focus:border-[#EF5B4B] focus:ring-1 focus:ring-[#EF5B4B]"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
                 <div className="flex gap-3 pt-4">
                   <button type="button" className="bg-transparent border border-[#3a3a3a] text-gray-300 hover:bg-[#3a3a3a] rounded-xl px-6 py-2.5 transition-colors flex-1" onClick={() => setShowModal(false)}>Cancel</button>
                   <button type="submit" className="bg-[#EF5B4B] hover:bg-[#d94a3a] text-white rounded-xl px-6 py-2.5 font-medium transition-colors flex-1" disabled={isSubmitting}>
@@ -237,10 +246,7 @@ export default function WorkoutsPage() {
                 </p>
                 <Button className="gap-2 px-8" onClick={() => {
                   console.log('1. Button clicked')
-                  if (hasWorkoutToday) {
-                    alert("You already logged a workout today.")
-                    return
-                  }
+                  // removed hasWorkoutToday check
                   if (workouts.length > 0) {
                     console.log('2. Setting active workout:', workouts[0])
                     console.log('3. Timer opened')
@@ -304,7 +310,7 @@ export default function WorkoutsPage() {
           <h2 className="font-playfair text-2xl font-bold mb-6">Recent Activity</h2>
           
           <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
-            {workouts.slice(1).map((workout) => (
+            {workouts.map((workout) => (
               <motion.div variants={item} key={workout.id}>
                 <Card className="hover:border-panel-accent/50 transition-colors">
                   <CardContent className="p-6 flex items-center justify-between">
