@@ -58,7 +58,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  const [toast, setToast] = useState<{message: string; type: 'success' | 'error'} | null>(null)
+  const [toast, setToast] = useState<{msg: string; type: 'success' | 'error'} | null>(null)
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
 
   const [calories, setCalories] = useState(0)
@@ -162,7 +162,7 @@ export default function DashboardPage() {
           logged_at: new Date().toISOString(),
           photo_url: null
         });
-        setToast({ message: "Fast extended by 30 min!", type: "success" });
+        setToast({ msg: "Fasting window extended!", type: "success" });
         router.refresh();
       } else if (actionType === "walk") {
         await createWorkout({
@@ -173,7 +173,7 @@ export default function DashboardPage() {
           date: new Date().toISOString().split('T')[0],
           notes: "Logged via Quick Action"
         });
-        setToast({ message: "Outdoor Walk logged! 15 min", type: "success" });
+        setToast({ msg: "15m walk logged!", type: "success" });
         router.refresh();
       } else if (actionType === "breathe") {
         // First, check if "Deep breathing" habit exists
@@ -186,7 +186,7 @@ export default function DashboardPage() {
         
         if (existingHabit) {
           await logHabitCompletion(existingHabit.id);
-          setToast({ message: `Deep breathing done! Streak: ${existingHabit.streak_count + 1}`, type: "success" });
+          setToast({ msg: `Deep breathing logged!`, type: "success" });
         } else {
           // Create the habit first
           const { data: newHabit } = await createHabit({
@@ -195,14 +195,14 @@ export default function DashboardPage() {
           });
           if (newHabit) {
             await logHabitCompletion(newHabit.id);
-            setToast({ message: "Deep breathing habit created & logged!", type: "success" });
+            setToast({ msg: "Deep breathing logged!", type: "success" });
           }
         }
         router.refresh();
       }
     } catch (err) {
       console.error("Action failed:", err);
-      setToast({ message: "Failed to log action", type: "error" });
+      setToast({ msg: "Failed to log. Try again.", type: "error" });
     } finally {
       setLoadingAction(null);
       setTimeout(() => setToast(null), 3000);
@@ -294,7 +294,11 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout insightPanel={insightPanel}>
-      {toast && <Toast message={toast.message} type={toast.type} />}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-white ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+          {toast.msg}
+        </div>
+      )}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
