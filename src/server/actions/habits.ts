@@ -88,11 +88,7 @@ export async function logHabitCompletion(habitId: string): Promise<TypedActionRe
 
   const { data: habit } = await supabase.from('habits').select('streak_count, last_completed_at').eq('id', habitId).single()
 
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
-  const wasYesterday = habit?.last_completed_at?.startsWith(yesterday.toISOString().split('T')[0])
-
-  const newStreak = wasYesterday ? ((habit?.streak_count || 0) + 1) : 1
+  const newStreak = (habit?.streak_count || 0) + 1
 
   await supabase.from('habits').update({
     streak_count: newStreak,

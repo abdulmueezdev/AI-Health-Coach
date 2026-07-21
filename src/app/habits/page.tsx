@@ -260,12 +260,9 @@ export default function HabitsPage() {
                 
                 <div className="mt-6 flex gap-1 h-12">
                   {Array.from({ length: 7 }, (_, i) => {
-                    const d = new Date()
-                    d.setDate(d.getDate() - (6 - i))
-                    
-                    // Simple mock for past days. For a real app we'd fetch habit_logs, but we use streak_count here
-                    const daysAgo = 6 - i;
-                    const isActive = (isCompletedToday && daysAgo < habit.streak_count) || (!isCompletedToday && daysAgo < habit.streak_count && daysAgo > 0);
+                    const todayDay = (new Date().getDay() + 6) % 7; // Mon=0, Sun=6
+                    const effectiveToday = isCompletedToday ? todayDay : todayDay - 1;
+                    const isActive = i <= effectiveToday && (effectiveToday - i) < habit.streak_count;
 
                     return (
                       <div 
@@ -280,11 +277,9 @@ export default function HabitsPage() {
                   })}
                 </div>
                 <div className="flex justify-between mt-2 text-[10px] font-bold text-text-secondary uppercase tracking-tighter">
-                  {Array.from({ length: 7 }, (_, i) => {
-                    const d = new Date()
-                    d.setDate(d.getDate() - (6 - i))
-                    return <span key={i}>{d.toLocaleDateString('en-US', { weekday: 'narrow' })}</span>
-                  })}
+                  {['M','T','W','T','F','S','S'].map((day, i) => (
+                    <span key={i}>{day}</span>
+                  ))}
                 </div>
               </CardContent>
             </Card>

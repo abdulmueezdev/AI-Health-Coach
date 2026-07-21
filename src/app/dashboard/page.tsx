@@ -154,16 +154,15 @@ export default function DashboardPage() {
     setLoadingAction(actionType);
     try {
       if (actionType === "fast") {
-        // Log a default break-fast meal
         await createMeal({
-          description: "Break-fast meal",
-          calories_estimate: 400,
-          macros: { protein: 20, carbs: 45, fat: 15 },
+          description: "Extended fast by 30 minutes",
+          calories_estimate: 0,
+          macros: { protein: 0, carbs: 0, fat: 0 },
           source: "manual",
           logged_at: new Date().toISOString(),
           photo_url: null
         });
-        setToast({ message: "Break-fast logged! +400 cal", type: "success" });
+        setToast({ message: "Fast extended by 30 min!", type: "success" });
         router.refresh();
       } else if (actionType === "walk") {
         await createWorkout({
@@ -246,7 +245,9 @@ export default function DashboardPage() {
         <div className="w-10 h-10 rounded-full bg-accent-primary flex items-center justify-center text-white">
           <span className="material-symbols-outlined text-sm">Vitalis</span>
         </div>
-        <h3 className="font-playfair text-lg font-bold">You&apos;re crushing it</h3>
+        <h3 className="font-playfair text-lg font-bold">
+          {totalStreak > 5 ? "You're on fire! 🔥" : workoutsThisWeek.length >= 3 ? "You're crushing it!" : "Let's build momentum!"}
+        </h3>
       </div>
       
       <Card className="bg-[var(--card-bg)] border-[var(--border-color)] shadow-sm">
