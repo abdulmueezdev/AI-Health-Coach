@@ -1,6 +1,6 @@
 'use server'
 
-const CALORIE_API_BASE = 'https://api.api-ninjas.com/v1'
+const OPENFOODFACTS_BASE = 'https://world.openfoodfacts.org/cgi/search.pl'
 
 export async function searchFoods(query: string) {
   console.error('CALORIE_API_DEBUG: searchFoods called with query:', query)
@@ -11,29 +11,16 @@ export async function searchFoods(query: string) {
   }
   
   try {
-    const apiKey = process.env.CALORIE_API_KEY
-    console.error('CALORIE_API_DEBUG: API key present?', !!apiKey)
-    console.error('CALORIE_API_DEBUG: API key length:', apiKey?.length || 0)
-    
-    if (!apiKey) {
-      console.error('CALORIE_API_DEBUG: API key MISSING')
-      return { error: 'API key not configured', foods: [] }
-    }
-    
-    const url = `${CALORIE_API_BASE}/nutrition?query=${encodeURIComponent(query)}`
+    const url = `${OPENFOODFACTS_BASE}?search_terms=${encodeURIComponent(query)}&json=1&page_size=10`
     console.error('CALORIE_API_DEBUG: Fetching URL:', url)
     
-    // NOTE: Removed next: { revalidate: 0 } — this can break external fetches
     const res = await fetch(url, {
-      headers: { 'X-Api-Key': apiKey }
+      headers: {
+        'User-Agent': 'VitalisApp/1.0 (vitalis@example.com)'
+      }
     })
     
     console.error('CALORIE_API_DEBUG: Response status:', res.status)
-    
-    if (res.status === 429) {
-      console.error('CALORIE_API_DEBUG: Rate limited')
-      return { error: 'Rate limit reached. Try again.', foods: [] }
-    }
     
     if (!res.ok) {
       const errorText = await res.text()
@@ -42,31 +29,38 @@ export async function searchFoods(query: string) {
     }
     
     const data = await res.json()
-    console.error('CALORIE_API_DEBUG: Response keys:', Object.keys(data))
-    console.error('CALORIE_API_DEBUG: items count:', data.items?.length)
+    console.error('CALORIE_API_DEBUG: products count:', data.products?.length)
     
+    // OpenFoodFacts returns { products: [...] }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const foods = data.items?.map((food: any) => ({
-      id: food.name.toLowerCase().replace(/\s+/g, '-'),
-      name: food.name,
-      brand: null,
-      caloriesPer100g: food.calories || 0,
-      proteinPer100g: food.protein_g || 0,
-      carbsPer100g: food.carbohydrates_total_g || 0,
-      fatPer100g: food.fat_total_g || 0,
-      servingSize: `${food.serving_size_g || 100}g`,
-    })) || []
+    const foods = data.products?.map((product: any) => {
+      const nutriments = product.nutriments || {}
+      
+      // OpenFoodFacts uses per-100g values by default
+      const calories = nutriments['energy-kcal_100g'] || nutriments['energy-kcal'] || 0
+      const protein = nutriments.proteins_100g || nutriments.proteins || 0
+      const carbs = nutriments.carbohydrates_100g || nutriments.carbohydrates || 0
+      const fat = nutriments.fat_100g || nutriments.fat || 0
+      
+      return {
+        id: product.code || product.id || Math.random().toString(36).substring(7),
+        name: product.product_name || product.product_name_en || 'Unknown food',
+        brand: product.brands || null,
+        caloriesPer100g: Math.round(calories),
+        proteinPer100g: Math.round(protein * 10) / 10,
+        carbsPer100g: Math.round(carbs * 10) / 10,
+        fatPer100g: Math.round(fat * 10) / 10,
+        servingSize: '100g',
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }).filter((food: any) => food.caloriesPer100g > 0 || food.proteinPer100g > 0 || food.carbsPer100g > 0 || food.fatPer100g > 0) || []
     
     console.error('CALORIE_API_DEBUG: Mapped foods count:', foods.length)
     return { foods }
     
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    // Log the FULL error including e.cause which contains the real network error
-    console.error('CALORIE_API_DEBUG: CATCH ERROR message:', e.message)
-    console.error('CALORIE_API_DEBUG: CATCH ERROR cause:', e.cause)
-    console.error('CALORIE_API_DEBUG: CATCH ERROR cause message:', e.cause?.message)
-    console.error('CALORIE_API_DEBUG: CATCH ERROR stack:', e.stack)
+    console.error('CALORIE_API_DEBUG: CATCH ERROR:', e.message, e.cause?.message, e.stack)
     return { error: 'Search failed. Check connection.', foods: [] }
   }
 }

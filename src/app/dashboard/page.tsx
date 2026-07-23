@@ -15,6 +15,12 @@ export default async function DashboardPage() {
 
   let profile = null
   let displayName = null
+  
+  console.error('DASHBOARD_DEBUG: Starting profile fetch...')
+  console.error('DASHBOARD_DEBUG: User object exists?', !!user)
+  console.error('DASHBOARD_DEBUG: User ID:', user?.id)
+  console.error('DASHBOARD_DEBUG: User email:', user?.email)
+  
   try {
     const { data, error } = await supabase
       .from('profiles')
@@ -22,18 +28,22 @@ export default async function DashboardPage() {
       .eq('user_id', user.id)
       .maybeSingle()
     
+    console.error('DASHBOARD_DEBUG: Profile query completed')
+    console.error('DASHBOARD_DEBUG: Profile data:', JSON.stringify(data))
+    console.error('DASHBOARD_DEBUG: Profile error:', JSON.stringify(error))
+    
     if (error) {
-      console.error('DASHBOARD_DEBUG: Profile query error:', error)
+      console.error('DASHBOARD_DEBUG: Profile query ERROR:', error.message, error.code, error.details)
     }
-    console.error('DASHBOARD_DEBUG: Profile data:', data)
-    console.error('DASHBOARD_DEBUG: User ID:', user.id)
-    console.error('DASHBOARD_DEBUG: User email:', user.email)
     
     profile = data
     displayName = profile?.display_name
   } catch (e) {
-    console.error('DASHBOARD_DEBUG: Profile fetch exception:', e)
+    console.error('DASHBOARD_DEBUG: Profile fetch EXCEPTION:', e)
   }
+  
+  console.error('DASHBOARD_DEBUG: Final displayName:', displayName)
+  console.error('DASHBOARD_DEBUG: Final profile:', JSON.stringify(profile))
 
   // HARD FALLBACK CHAIN
   const name = displayName || user.user_metadata?.display_name || user.email?.split('@')[0] || 'friend'
