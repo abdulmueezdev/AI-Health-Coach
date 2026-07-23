@@ -23,12 +23,18 @@ export default function WorkoutsPage() {
   const [newDuration, setNewDuration] = useState("")
   const [newIntensity, setNewIntensity] = useState("Medium")
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null)
+  const [toast, setToast] = useState<{msg: string, type: 'error'} | null>(null)
+
+  const showToast = (msg: string) => {
+    setToast({ msg, type: 'error' })
+    setTimeout(() => setToast(null), 5000)
+  }
 
   const handleCompleteWorkout = async (actualDurationSeconds: number) => {
     if (!activeWorkout) return;
     
     if (actualDurationSeconds < 60) {
-      alert('Workout must be at least 1 minute long.')
+      showToast('Workout must be at least 1 minute long.')
       return
     }
 
@@ -104,10 +110,10 @@ export default function WorkoutsPage() {
         setNewDuration("")
         loadWorkouts()
       } else {
-        alert("Failed to log workout")
+        showToast("Failed to log workout")
       }
     } catch {
-      alert("Error")
+      showToast("Error logging workout")
     } finally {
       setIsSubmitting(false)
     }
@@ -128,6 +134,11 @@ export default function WorkoutsPage() {
 
   return (
     <DashboardLayout>
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 px-4 py-3 rounded-xl bg-red-600 text-white text-sm shadow-lg">
+          {toast.msg}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="font-playfair text-4xl font-bold mb-2">Workouts</h1>

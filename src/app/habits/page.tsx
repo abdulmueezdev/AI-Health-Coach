@@ -29,7 +29,7 @@ export default function HabitsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newHabitName, setNewHabitName] = useState("")
   const [newHabitFreq, setNewHabitFreq] = useState("daily")
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toast, setToast] = useState<{msg: string, type: 'error' | 'success'} | null>(null)
 
   async function loadHabits() {
     const res = await getHabits()
@@ -66,18 +66,18 @@ export default function HabitsPage() {
         setNewHabitFreq("daily")
         loadHabits()
       } else {
-        alert("Failed to create habit")
+        showToast("Error logging habit", "error")
       }
     } catch {
-      alert("Error")
+      showToast("Error creating habit", "error")
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const showToast = (message: string) => {
-    setToastMessage(message)
-    setTimeout(() => setToastMessage(null), 5000)
+  const showToast = (msg: string, type: 'error' | 'success' = 'error') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 5000)
   }
   
 
@@ -136,14 +136,17 @@ export default function HabitsPage() {
     <DashboardLayout>
       <div className="relative">
         <AnimatePresence>
-          {toastMessage && (
+          {toast && (
             <motion.div
               initial={{ opacity: 0, y: -20, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: -20, x: "-50%" }}
-              className="absolute top-0 left-1/2 z-50 bg-accent-primary/90 backdrop-blur text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium whitespace-nowrap"
+              className={cn(
+                "fixed top-4 left-1/2 z-50 px-4 py-3 rounded-xl text-white text-sm shadow-lg",
+                toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'
+              )}
             >
-              {toastMessage}
+              {toast.msg}
             </motion.div>
           )}
         </AnimatePresence>

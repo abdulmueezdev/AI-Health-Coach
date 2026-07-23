@@ -130,12 +130,8 @@ RESPONSE FORMAT (JSON only, no markdown):
     }
 
   } catch (e: unknown) {
-    console.error('Meal analysis error:', e)
-    const errorMsg = e instanceof Error ? e.message : 'Unknown error'
-    return { 
-      error: errorMsg || 'Failed to analyze photo. Please enter meal details manually.',
-      details: errorMsg 
-    }
+    console.error('Meal analysis failed:', e)
+    return { error: 'Could not analyze this photo. Please log your meal manually.' }
   }
 }
 

@@ -1,6 +1,6 @@
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (typeof window === 'undefined' || !('Notification' in window)) {
-    alert('This browser does not support notifications.');
+    console.warn('This browser does not support notifications.');
     return 'denied';
   }
   const permission = await Notification.requestPermission();

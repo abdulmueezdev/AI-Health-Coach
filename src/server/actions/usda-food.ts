@@ -9,8 +9,17 @@ export async function searchFoods(query: string) {
     const res = await fetch(url)
     const data = await res.json()
     
+    if (!data.foods?.length) {
+      return { 
+        usdaResults: [],
+        fallback: true,
+        message: 'No exact match in USDA database. You can still enter this food manually.'
+      }
+    }
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.foods?.map((food: any) => ({
+    return {
+      usdaResults: data.foods.map((food: { fdcId: number; description: string; foodNutrients: { nutrientName: string; value: number }[] }) => ({
       fdcId: food.fdcId,
       name: food.description,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,9 +31,10 @@ export async function searchFoods(query: string) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fatPer100g: food.foodNutrients.find((n: any) => n.nutrientName === 'Total lipid (fat)')?.value || 0,
     })) || []
+    }
   } catch (error) {
     console.error('USDA search error:', error)
-    return []
+    return { usdaResults: [], fallback: true, message: 'Search failed' }
   }
 }
 

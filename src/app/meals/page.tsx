@@ -54,6 +54,20 @@ export default function MealsPage() {
   const [mealType, setMealType] = useState("Snack")
   const [isSearching, setIsSearching] = useState(false)
   const [comboboxOpen, setComboboxOpen] = useState(false)
+  const [toast, setToast] = useState<{msg: string, type: 'error'} | null>(null)
+
+  const [useManualEntry, setUseManualEntry] = useState(false)
+  const [manualName, setManualName] = useState("")
+  const [manualCalories, setManualCalories] = useState("")
+  const [manualProtein, setManualProtein] = useState("")
+  const [manualCarbs, setManualCarbs] = useState("")
+  const [manualFat, setManualFat] = useState("")
+  const [manualPortion, setManualPortion] = useState("1 serving")
+
+  const showToast = (msg: string) => {
+    setToast({ msg, type: 'error' })
+    setTimeout(() => setToast(null), 4000)
+  }
 
   const loadData = async () => {
     try {
@@ -82,7 +96,7 @@ export default function MealsPage() {
       if (searchQuery.length >= 3) {
         setIsSearching(true)
         const results = await searchFoods(searchQuery)
-        setSearchResults(results)
+        setSearchResults(results.usdaResults || [])
         setIsSearching(false)
       } else {
         setSearchResults([])
@@ -105,12 +119,16 @@ export default function MealsPage() {
 
       const res = await analyzeAndSaveMealPhoto(formData)
 
-      if (res.error) throw new Error(res.error)
+      if (res.error) {
+        setToast({ msg: res.error, type: 'error' })
+        setTimeout(() => setToast(null), 5000)
+        return
+      }
 
       loadData()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      alert(err.message || "Failed to process photo")
+    } catch {
+      setToast({ msg: 'Something went wrong. Please try again.', type: 'error' })
+      setTimeout(() => setToast(null), 5000)
     } finally {
       setIsSubmitting(false)
       if (e.target) e.target.value = ''
@@ -118,23 +136,42 @@ export default function MealsPage() {
   }
 
   const handleManualSubmit = async () => {
-    if (!selectedFood || !portionSize) return
     setIsSubmitting(true)
     try {
-      const ratio = parseFloat(portionSize) / 100
-      const calories = Math.round((selectedFood.caloriesPer100g || 0) * ratio)
-      const protein = Math.round((selectedFood.proteinPer100g || 0) * ratio)
-      const carbs = Math.round((selectedFood.carbsPer100g || 0) * ratio)
-      const fat = Math.round((selectedFood.fatPer100g || 0) * ratio)
+      let description = ""
+      let calories = 0
+      let protein = 0
+      let carbs = 0
+      let fat = 0
+      let portion = "medium"
+
+      if (useManualEntry) {
+        if (!manualName || !manualCalories) return
+        description = manualName
+        calories = parseInt(manualCalories) || 0
+        protein = parseInt(manualProtein) || 0
+        carbs = parseInt(manualCarbs) || 0
+        fat = parseInt(manualFat) || 0
+        portion = manualPortion || "1 serving"
+      } else {
+        if (!selectedFood || !portionSize) return
+        const ratio = parseFloat(portionSize) / 100
+        description = selectedFood.name
+        calories = Math.round((selectedFood.caloriesPer100g || 0) * ratio)
+        protein = Math.round((selectedFood.proteinPer100g || 0) * ratio)
+        carbs = Math.round((selectedFood.carbsPer100g || 0) * ratio)
+        fat = Math.round((selectedFood.fatPer100g || 0) * ratio)
+        portion = `${portionSize}g`
+      }
 
       const res = await createMeal({
-        description: selectedFood.name,
+        description,
         calories_estimate: calories,
         macros: { 
           protein, 
           carbs, 
           fat,
-          portion_estimate: `${portionSize}g`,
+          portion_estimate: portion,
           confidence: 'high',
           meal_type: mealType
         },
@@ -149,12 +186,19 @@ export default function MealsPage() {
         setSearchQuery("")
         setPortionSize("100")
         setMealType("Snack")
+        setUseManualEntry(false)
+        setManualName("")
+        setManualCalories("")
+        setManualProtein("")
+        setManualCarbs("")
+        setManualFat("")
+        setManualPortion("1 serving")
         loadData()
       } else {
-        alert("Failed to log meal: " + res.error)
+        showToast("Failed to log meal: " + res.error)
       }
     } catch {
-      alert("Error logging meal")
+      showToast("Error logging meal")
     } finally {
       setIsSubmitting(false)
     }
@@ -177,6 +221,11 @@ export default function MealsPage() {
 
   return (
     <DashboardLayout>
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 px-4 py-3 rounded-xl bg-red-600 text-white text-sm shadow-lg">
+          {toast.msg}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="font-playfair text-4xl font-bold mb-2">Meals</h1>
@@ -200,6 +249,51 @@ export default function MealsPage() {
                 <DialogTitle>Log a Meal</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
+                {useManualEntry ? (
+                  <>
+                    <div className="grid gap-2">
+                      <label className="text-sm font-medium">Food Name</label>
+                      <Input value={manualName} onChange={e => setManualName(e.target.value)} placeholder="e.g. Shawarma" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <label className="text-sm font-medium">Calories*</label>
+                        <Input type="number" value={manualCalories} onChange={e => setManualCalories(e.target.value)} placeholder="0" />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className="text-sm font-medium">Portion</label>
+                        <Input value={manualPortion} onChange={e => setManualPortion(e.target.value)} placeholder="1 serving" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="grid gap-2">
+                        <label className="text-[10px] uppercase text-text-secondary">Protein (g)</label>
+                        <Input type="number" value={manualProtein} onChange={e => setManualProtein(e.target.value)} placeholder="0" />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className="text-[10px] uppercase text-text-secondary">Carbs (g)</label>
+                        <Input type="number" value={manualCarbs} onChange={e => setManualCarbs(e.target.value)} placeholder="0" />
+                      </div>
+                      <div className="grid gap-2">
+                        <label className="text-[10px] uppercase text-text-secondary">Fat (g)</label>
+                        <Input type="number" value={manualFat} onChange={e => setManualFat(e.target.value)} placeholder="0" />
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <label className="text-sm font-medium">Meal Type</label>
+                      <select 
+                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        value={mealType} 
+                        onChange={e => setMealType(e.target.value)}
+                      >
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Snack">Snack</option>
+                      </select>
+                    </div>
+                  </>
+                ) : (
                 <div className="grid gap-2">
                   <label className="text-sm font-medium">Search Food (USDA)</label>
                   <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
@@ -222,7 +316,27 @@ export default function MealsPage() {
                           onValueChange={setSearchQuery}
                         />
                         <CommandList>
-                          <CommandEmpty>{isSearching ? "Searching..." : "No foods found."}</CommandEmpty>
+                          <CommandEmpty>
+                            {isSearching ? "Searching..." : (
+                              searchQuery.length > 2 ? (
+                                <div className="p-4 text-center">
+                                  <p className="text-gray-400 text-sm mb-3">
+                                    No exact match in USDA database.
+                                  </p>
+                                  <button 
+                                    onClick={() => {
+                                      setUseManualEntry(true)
+                                      setManualName(searchQuery)
+                                      setComboboxOpen(false)
+                                    }}
+                                    className="text-accent-primary text-sm font-medium hover:underline"
+                                  >
+                                    Enter manually instead →
+                                  </button>
+                                </div>
+                              ) : "No foods found."
+                            )}
+                          </CommandEmpty>
                           <CommandGroup>
                             {searchResults.map((food) => (
                               <CommandItem
@@ -252,7 +366,9 @@ export default function MealsPage() {
                   </Popover>
                 </div>
                 
-                {selectedFood && (
+                )}
+                {/* End conditional rendering */}
+                {!useManualEntry && selectedFood && (
                   <>
                     <div className="grid gap-2">
                       <label className="text-sm font-medium">Portion Size (grams)</label>
@@ -301,7 +417,7 @@ export default function MealsPage() {
               </div>
               <div className="flex justify-end gap-3 mt-4">
                 <Button variant="ghost" onClick={() => setIsManualLogOpen(false)}>Cancel</Button>
-                <Button onClick={handleManualSubmit} disabled={!selectedFood || !portionSize || isSubmitting}>
+                <Button onClick={handleManualSubmit} disabled={isSubmitting || (!useManualEntry && (!selectedFood || !portionSize)) || (useManualEntry && (!manualName || !manualCalories))}>
                   {isSubmitting ? "Saving..." : "Save Meal"}
                 </Button>
               </div>
@@ -361,7 +477,18 @@ export default function MealsPage() {
           />
         ) : (
           <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {meals.map((meal) => (
+            {meals.map((meal) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const mealAny = meal as any
+              const protein = meal.macros?.protein ?? mealAny.protein
+              const carbs = meal.macros?.carbs ?? mealAny.carbs
+              const fat = meal.macros?.fat ?? mealAny.fat
+
+              const displayProtein = protein !== undefined && protein !== null ? `${protein}g` : "—"
+              const displayCarbs = carbs !== undefined && carbs !== null ? `${carbs}g` : "—"
+              const displayFat = fat !== undefined && fat !== null ? `${fat}g` : "—"
+
+              return (
               <motion.div variants={item} key={meal.id}>
                 <Card className="hover:border-accent-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent-primary/5 group h-full">
                   <CardContent className="p-0">
@@ -428,33 +555,27 @@ export default function MealsPage() {
                             <span className="text-sm text-[var(--text-secondary)]">kcal</span>
                           </div>
                           
-                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                          {(meal.macros as any) && (
-                            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[var(--border-color)]">
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">Protein</span>
-                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                <span className="text-sm font-medium text-[var(--text-primary)]">{(meal.macros as any).protein || 0}g</span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">Carbs</span>
-                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                <span className="text-sm font-medium text-[var(--text-primary)]">{(meal.macros as any).carbs || 0}g</span>
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">Fat</span>
-                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                <span className="text-sm font-medium text-[var(--text-primary)]">{(meal.macros as any).fat || 0}g</span>
-                              </div>
+                          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[var(--border-color)]">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">Protein</span>
+                              <span className="text-sm font-medium text-[var(--text-primary)]">{displayProtein}</span>
                             </div>
-                          )}
+                            <div className="flex flex-col">
+                              <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">Carbs</span>
+                              <span className="text-sm font-medium text-[var(--text-primary)]">{displayCarbs}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">Fat</span>
+                              <span className="text-sm font-medium text-[var(--text-primary)]">{displayFat}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+            )})}
           </motion.div>
         )}
       </div>

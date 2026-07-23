@@ -10,7 +10,7 @@ function getModel() {
       throw new Error('GEMINI_API_KEY is not set')
     }
     genAI = new GoogleGenerativeAI(apiKey)
-    model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
   }
   return model!
 }

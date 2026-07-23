@@ -23,13 +23,19 @@ const RemindersSection = () => {
   const [newHabit, setNewHabit] = useState('');
   const [newTime, setNewTime] = useState('08:00');
   const [selectedDays, setSelectedDays] = useState<number[]>([1,2,3,4,5]);
+  const [toast, setToast] = useState<{msg: string, type: 'error' | 'success'} | null>(null);
+
+  const showToast = (msg: string, type: 'error' | 'success' = 'error') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 5000);
+  };
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const handleAdd = async () => {
     const permission = await requestNotificationPermission();
     if (permission !== 'granted') {
-      alert('Please enable notifications in your browser settings.');
+      showToast('Please enable notifications in your browser settings.', 'error');
       return;
     }
     if (!newHabit.trim()) return;
@@ -43,7 +49,12 @@ const RemindersSection = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#2a2a2a] rounded-3xl p-6 border border-gray-200 dark:border-[#3a3a3a]">
+    <div className="bg-white dark:bg-[#2a2a2a] rounded-3xl p-6 border border-gray-200 dark:border-[#3a3a3a] relative">
+      {toast && (
+        <div className={`absolute top-4 right-4 z-50 px-4 py-3 rounded-xl text-white text-sm shadow-lg ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+          {toast.msg}
+        </div>
+      )}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
           <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -158,6 +169,12 @@ export default function SettingsClient({
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [toast, setToast] = useState<{msg: string, type: 'error' | 'success'} | null>(null);
+
+  const showToast = (msg: string, type: 'error' | 'success' = 'error') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 5000);
+  };
 
   const [localHabits, setLocalHabits] = useState(habits);
   const [localWorkouts, setLocalWorkouts] = useState(workouts);
@@ -178,7 +195,7 @@ export default function SettingsClient({
       router.refresh();
     } catch (e) {
       console.error('Delete failed:', e);
-      alert('Failed to delete. Check console.');
+      showToast('Failed to delete. Check console.', 'error');
     }
   };
 
@@ -190,7 +207,7 @@ export default function SettingsClient({
       router.refresh();
     } catch (e) {
       console.error('Delete failed:', e);
-      alert('Failed to delete. Check console.');
+      showToast('Failed to delete. Check console.', 'error');
     }
   };
 
@@ -202,7 +219,7 @@ export default function SettingsClient({
       router.refresh();
     } catch (e) {
       console.error('Delete failed:', e);
-      alert('Failed to delete. Check console.');
+      showToast('Failed to delete. Check console.', 'error');
     }
   };
 
@@ -237,6 +254,11 @@ export default function SettingsClient({
 
   return (
     <DashboardLayout>
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-white text-sm shadow-lg ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+          {toast.msg}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-3xl font-serif font-medium text-gray-900 dark:text-white">

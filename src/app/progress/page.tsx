@@ -25,6 +25,12 @@ export default function ProgressPage() {
   const [bodyFatInput, setBodyFatInput] = useState('')
   const [notesInput, setNotesInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [toast, setToast] = useState<{msg: string, type: 'error' | 'success'} | null>(null)
+
+  const showToast = (msg: string, type: 'error' | 'success' = 'error') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 5000)
+  }
 
   async function loadData() {
     setLoading(true)
@@ -108,12 +114,17 @@ export default function ProgressPage() {
       setNotesInput('')
       loadData()
     } else {
-      alert(res.error)
+      showToast(res.error || "Failed to log progress")
     }
   }
 
   return (
     <DashboardLayout>
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-white text-sm shadow-lg ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+          {toast.msg}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="font-playfair text-4xl font-bold mb-2">Progress</h1>
