@@ -32,27 +32,36 @@ export async function uploadMealPhoto(formData: FormData): Promise<TypedActionRe
 }
 
 export async function analyzeAndSaveMealPhoto(formData: FormData) {
+  console.log('=== PHOTO DEBUG START ===')
+  
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  console.log('DEBUG 1 - User:', user?.id ? 'found' : 'MISSING')
+  
   if (!user) return { error: 'Not authenticated' }
 
   const file = formData.get('photo') as File
+  console.log('DEBUG 2 - File:', file?.name, 'Size:', file?.size, 'Type:', file?.type)
+  
   if (!file) return { error: 'No photo provided' }
 
   try {
     // 1. Upload to Supabase Storage
     const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+    console.log('DEBUG 3 - Upload path:', path)
     const { error: uploadError } = await supabase.storage
       .from('meal-photos')
       .upload(path, file, { contentType: file.type })
     
+    console.log('DEBUG 4 - Upload result:', uploadError ? `ERROR: ${uploadError.message}` : 'success')
     if (uploadError) throw uploadError
 
     // 2. Get signed URL (60 seconds for Gemini)
-    const { data: signedData } = await supabase.storage
+    const { data: signedData, error: signedError } = await supabase.storage
       .from('meal-photos')
       .createSignedUrl(path, 60)
     
+    console.log('DEBUG 5 - Signed URL:', signedData?.signedUrl ? 'generated' : 'FAILED', signedError ? `ERROR: ${signedError.message}` : '')
     const signedUrl = signedData?.signedUrl
     if (!signedUrl) throw new Error('Failed to generate signed URL')
 
@@ -83,8 +92,13 @@ RESPONSE FORMAT (JSON only, no markdown):
 }
 `
 
+    console.log('DEBUG 6 - Calling Gemini with model: gemini-2.0-flash')
     const result = await aiService.analyzeImage(signedUrl, prompt)
+    console.log('DEBUG 7 - Gemini raw response:', result?.response ? 'received' : 'EMPTY')
+    
     const text = result.response.text()
+    console.log('DEBUG 8 - Gemini text length:', text?.length)
+    console.log('DEBUG 9 - Gemini text preview:', text?.substring(0, 200))
     
     // 4. Parse JSON robustly
     const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -129,9 +143,10 @@ RESPONSE FORMAT (JSON only, no markdown):
       }
     }
 
-  } catch (e: unknown) {
-    console.error('Meal analysis failed:', e)
-    return { error: 'Could not analyze this photo. Please log your meal manually.' }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
+    console.error('DEBUG ERROR - Full error:', e.message, e.stack)
+    return { error: `Photo analysis failed: ${e.message}` }
   }
 }
 

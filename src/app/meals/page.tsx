@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Camera, Plus, Clock, Flame, Search, Check, ChevronDown } from "lucide-react"
 import { EmptyState, LoadingSkeleton, ErrorState } from "@/components/ui/states"
 import { createMeal, analyzeAndSaveMealPhoto, getMealsDashboardData } from "@/server/actions/meals"
-import { searchFoods } from "@/server/actions/usda-food"
+import { searchFoods } from "@/server/actions/calorie-api"
 import { Meal } from "@/types/database"
 import {
   Dialog,
@@ -63,6 +63,7 @@ export default function MealsPage() {
   const [manualCarbs, setManualCarbs] = useState("")
   const [manualFat, setManualFat] = useState("")
   const [manualPortion, setManualPortion] = useState("1 serving")
+  const [searchError, setSearchError] = useState<string | null>(null)
 
   const showToast = (msg: string) => {
     setToast({ msg, type: 'error' })
@@ -95,11 +96,18 @@ export default function MealsPage() {
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.length >= 3) {
         setIsSearching(true)
-        const results = await searchFoods(searchQuery)
-        setSearchResults(results.usdaResults || [])
+        const result = await searchFoods(searchQuery)
         setIsSearching(false)
+        if (result.error) {
+          setSearchError(result.error)
+          setSearchResults([])
+        } else {
+          setSearchError(null)
+          setSearchResults(result.foods || [])
+        }
       } else {
         setSearchResults([])
+        setSearchError(null)
       }
     }, 500)
 
@@ -295,7 +303,7 @@ export default function MealsPage() {
                   </>
                 ) : (
                 <div className="grid gap-2">
-                  <label className="text-sm font-medium">Search Food (USDA)</label>
+                  <label className="text-sm font-medium">Search Food</label>
                   <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -308,6 +316,11 @@ export default function MealsPage() {
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
+                    {searchError && (
+                      <div className="p-3 mt-2 rounded-lg bg-red-500/20 text-red-400 text-sm">
+                        {searchError}
+                      </div>
+                    )}
                     <PopoverContent className="w-[380px] p-0" align="start">
                       <Command>
                         <CommandInput 
@@ -321,7 +334,7 @@ export default function MealsPage() {
                               searchQuery.length > 2 ? (
                                 <div className="p-4 text-center">
                                   <p className="text-gray-400 text-sm mb-3">
-                                    No exact match in USDA database.
+                                    No foods found. Try a different search term.
                                   </p>
                                   <button 
                                     onClick={() => {
@@ -340,7 +353,7 @@ export default function MealsPage() {
                           <CommandGroup>
                             {searchResults.map((food) => (
                               <CommandItem
-                                key={food.fdcId}
+                                key={food.id}
                                 value={food.name}
                                 onSelect={() => {
                                   setSelectedFood(food)
@@ -350,7 +363,7 @@ export default function MealsPage() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    selectedFood?.fdcId === food.fdcId ? "opacity-100" : "opacity-0"
+                                    selectedFood?.id === food.id ? "opacity-100" : "opacity-0"
                                   )}
                                 />
                                 <div className="flex flex-col">
@@ -480,13 +493,15 @@ export default function MealsPage() {
             {meals.map((meal) => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const mealAny = meal as any
-              const protein = meal.macros?.protein ?? mealAny.protein
-              const carbs = meal.macros?.carbs ?? mealAny.carbs
-              const fat = meal.macros?.fat ?? mealAny.fat
+              const protein = meal.macros?.protein ?? mealAny.protein ?? 0
+              const carbs = meal.macros?.carbs ?? mealAny.carbs ?? 0
+              const fat = meal.macros?.fat ?? mealAny.fat ?? 0
 
-              const displayProtein = protein !== undefined && protein !== null ? `${protein}g` : "—"
-              const displayCarbs = carbs !== undefined && carbs !== null ? `${carbs}g` : "—"
-              const displayFat = fat !== undefined && fat !== null ? `${fat}g` : "—"
+              const hasMacros = protein > 0 || carbs > 0 || fat > 0
+
+              const displayProtein = hasMacros ? `${protein}g` : "—"
+              const displayCarbs = hasMacros ? `${carbs}g` : "—"
+              const displayFat = hasMacros ? `${fat}g` : "—"
 
               return (
               <motion.div variants={item} key={meal.id}>

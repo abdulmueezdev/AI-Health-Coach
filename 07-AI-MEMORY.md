@@ -213,3 +213,11 @@ Next.js (App Router) + TypeScript + Tailwind CSS, Supabase (Postgres/Auth/Storag
 - Recommended Actions on dashboard now navigate to correct routes
 - All changes verified with design-taste-frontend, ui-ux-pro-max, taste-design skills
 - Build passes, TypeScript clean
+
+## v1.0.6 Changelog / ML Logging Overhaul
+- **Gemini Model Upgrade**: Updated from `gemini-1.5-flash` to `gemini-2.0-flash` across `ai-service.ts`, `gemini-client.ts`, and `meals.ts` for photo analysis.
+- **Error Handling Standardization**: Replaced raw browser `alert()` popups with a robust UI toast notification system and inline error states, ensuring raw API errors are never exposed to users.
+- **USDA to Calorie API Swap**: Removed `usda-food.ts` (due to aggressive rate limits) and replaced it with `calorie-api.ts`. Integrated `CALORIE_API_KEY` through `.env.local` and `.env.example`.
+- **Search Fallback**: Enhanced the meal search UI in `page.tsx` so that if the API returns zero results, users are presented with a seamless "Enter manually instead" fallback instead of a dead-end UI.
+- **Debugging & Telemetry**: Embedded structured console logs for both photo upload and API food search workflows to aid in serverless log monitoring.
+- Build passes, TypeScript completely clean.
