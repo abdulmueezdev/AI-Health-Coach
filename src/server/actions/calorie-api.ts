@@ -1,6 +1,6 @@
 'use server'
 
-const CALORIE_API_BASE = 'https://api.calorieapi.com/api/v1'
+const CALORIE_API_BASE = 'https://api.api-ninjas.com/v1'
 
 export async function searchFoods(query: string) {
   console.error('CALORIE_API_DEBUG: searchFoods called with query:', query)
@@ -13,18 +13,19 @@ export async function searchFoods(query: string) {
   try {
     const apiKey = process.env.CALORIE_API_KEY
     console.error('CALORIE_API_DEBUG: API key present?', !!apiKey)
+    console.error('CALORIE_API_DEBUG: API key length:', apiKey?.length || 0)
     
     if (!apiKey) {
-      console.error('CALORIE_API_DEBUG: API key MISSING — check Vercel env vars')
+      console.error('CALORIE_API_DEBUG: API key MISSING')
       return { error: 'API key not configured', foods: [] }
     }
     
-    const url = `${CALORIE_API_BASE}/search/foods?q=${encodeURIComponent(query)}&limit=10`
+    const url = `${CALORIE_API_BASE}/nutrition?query=${encodeURIComponent(query)}`
     console.error('CALORIE_API_DEBUG: Fetching URL:', url)
     
+    // NOTE: Removed next: { revalidate: 0 } — this can break external fetches
     const res = await fetch(url, {
-      headers: { 'X-API-Key': apiKey },
-      next: { revalidate: 0 }
+      headers: { 'X-Api-Key': apiKey }
     })
     
     console.error('CALORIE_API_DEBUG: Response status:', res.status)
@@ -36,25 +37,24 @@ export async function searchFoods(query: string) {
     
     if (!res.ok) {
       const errorText = await res.text()
-      console.error('CALORIE_API_DEBUG: Response not OK. Status:', res.status, 'Body:', errorText)
+      console.error('CALORIE_API_DEBUG: Response not OK. Status:', res.status, 'Body:', errorText.substring(0, 500))
       return { error: 'Search failed. Try again.', foods: [] }
     }
     
     const data = await res.json()
-    console.error('CALORIE_API_DEBUG: Response body keys:', Object.keys(data))
-    console.error('CALORIE_API_DEBUG: data.results type:', typeof data.results, 'isArray:', Array.isArray(data.results))
-    console.error('CALORIE_API_DEBUG: data.results length:', data.results?.length)
+    console.error('CALORIE_API_DEBUG: Response keys:', Object.keys(data))
+    console.error('CALORIE_API_DEBUG: items count:', data.items?.length)
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const foods = data.results?.map((food: any) => ({
-      id: food.id,
+    const foods = data.items?.map((food: any) => ({
+      id: food.name.toLowerCase().replace(/\s+/g, '-'),
       name: food.name,
-      brand: food.brand_name || null,
+      brand: null,
       caloriesPer100g: food.calories || 0,
       proteinPer100g: food.protein_g || 0,
-      carbsPer100g: food.carbohydrates_g || 0,
-      fatPer100g: food.fat_g || 0,
-      servingSize: food.serving_size || '100g',
+      carbsPer100g: food.carbohydrates_total_g || 0,
+      fatPer100g: food.fat_total_g || 0,
+      servingSize: `${food.serving_size_g || 100}g`,
     })) || []
     
     console.error('CALORIE_API_DEBUG: Mapped foods count:', foods.length)
@@ -62,7 +62,11 @@ export async function searchFoods(query: string) {
     
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    console.error('CALORIE_API_DEBUG: CATCH ERROR:', e.message, e.stack)
+    // Log the FULL error including e.cause which contains the real network error
+    console.error('CALORIE_API_DEBUG: CATCH ERROR message:', e.message)
+    console.error('CALORIE_API_DEBUG: CATCH ERROR cause:', e.cause)
+    console.error('CALORIE_API_DEBUG: CATCH ERROR cause message:', e.cause?.message)
+    console.error('CALORIE_API_DEBUG: CATCH ERROR stack:', e.stack)
     return { error: 'Search failed. Check connection.', foods: [] }
   }
 }

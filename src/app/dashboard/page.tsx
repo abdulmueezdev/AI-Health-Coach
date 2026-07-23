@@ -16,15 +16,23 @@ export default async function DashboardPage() {
   let profile = null
   let displayName = null
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('display_name, goal_type, starting_weight, target_weight, target_calories, activity_level, height')
       .eq('user_id', user.id)
       .maybeSingle()
+    
+    if (error) {
+      console.error('DASHBOARD_DEBUG: Profile query error:', error)
+    }
+    console.error('DASHBOARD_DEBUG: Profile data:', data)
+    console.error('DASHBOARD_DEBUG: User ID:', user.id)
+    console.error('DASHBOARD_DEBUG: User email:', user.email)
+    
     profile = data
     displayName = profile?.display_name
   } catch (e) {
-    console.error('Profile fetch failed:', e)
+    console.error('DASHBOARD_DEBUG: Profile fetch exception:', e)
   }
 
   // HARD FALLBACK CHAIN

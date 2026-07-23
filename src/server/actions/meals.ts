@@ -145,8 +145,18 @@ RESPONSE FORMAT (JSON only, no markdown):
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    console.error('DEBUG ERROR - Full error:', e.message, e.stack)
-    return { error: `Photo analysis failed: ${e.message}` }
+    console.error('Gemini analysis error:', e)
+    
+    // Check for rate limit
+    if (e?.message?.includes('429') || e?.status === 429) {
+      return { 
+        error: 'Photo analysis is temporarily unavailable due to high demand. Please enter your meal manually or try again in a minute.' 
+      }
+    }
+    
+    return { 
+      error: 'Could not analyze this photo. Please log your meal manually.' 
+    }
   }
 }
 
